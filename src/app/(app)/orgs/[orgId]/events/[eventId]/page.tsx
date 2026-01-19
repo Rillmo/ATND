@@ -34,12 +34,14 @@ export default async function EventDetailPage({
   const { orgId, eventId } = await params;
   const supabase = getSupabaseAdmin();
 
-  const { data: membership } = await supabase
+  const { data: membership } = (await supabase
     .from("organization_members")
     .select("role")
     .eq("org_id", orgId)
     .eq("user_id", session.user.id)
-    .single();
+    .single()) as {
+    data: { role: "MANAGER" | "MEMBER" } | null;
+  };
 
   if (!membership) {
     redirect(`/orgs/${orgId}`);
@@ -91,19 +93,33 @@ export default async function EventDetailPage({
     myStatus = "ABSENT";
   }
 
-  const { data: members } = membership.role === "MANAGER"
-    ? await supabase
-        .from("organization_members")
-        .select("user_id, role, users ( id, name, email )")
-        .eq("org_id", orgId)
-    : { data: [] };
+  const { data: members } =
+    membership.role === "MANAGER"
+      ? ((await supabase
+          .from("organization_members")
+          .select("user_id, role, users ( id, name, email )")
+          .eq("org_id", orgId)) as {
+          data: Array<{
+            user_id: string;
+            role: "MANAGER" | "MEMBER";
+            users: { id: string; name: string | null; email: string | null } | null;
+          }> | null;
+        })
+      : { data: [] };
 
-  const { data: attendance } = membership.role === "MANAGER"
-    ? await supabase
-        .from("attendances")
-        .select("user_id, status, checked_in_at")
-        .eq("event_id", eventId)
-    : { data: [] };
+  const { data: attendance } =
+    membership.role === "MANAGER"
+      ? ((await supabase
+          .from("attendances")
+          .select("user_id, status, checked_in_at")
+          .eq("event_id", eventId)) as {
+          data: Array<{
+            user_id: string;
+            status: "ATTENDED" | "NOT_ATTENDED" | "ABSENT";
+            checked_in_at: string | null;
+          }> | null;
+        })
+      : { data: [] };
 
   const attendanceByUser = new Map(
     (attendance ?? []).map((entry) => [entry.user_id, entry])

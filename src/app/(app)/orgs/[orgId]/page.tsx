@@ -24,40 +24,70 @@ export default async function OrgDetailPage({
   const { orgId } = await params;
   const supabase = getSupabaseAdmin();
 
-  const { data: membership } = await supabase
+  const { data: membership } = (await supabase
     .from("organization_members")
     .select("role")
     .eq("org_id", orgId)
     .eq("user_id", session.user.id)
-    .single();
+    .single()) as {
+    data: { role: "MANAGER" | "MEMBER" } | null;
+  };
 
   if (!membership) {
     redirect("/dashboard");
   }
 
-  const { data: org } = await supabase
+  const { data: org } = (await supabase
     .from("organizations")
     .select("id, name, description, image_url, invite_code, manager_user_id")
     .eq("id", orgId)
-    .single();
+    .single()) as {
+    data: {
+      id: string;
+      name: string;
+      description: string | null;
+      image_url: string | null;
+      invite_code: string;
+      manager_user_id: string;
+    } | null;
+  };
 
   if (!org) {
     redirect("/dashboard");
   }
 
-  const { data: members } = await supabase
+  const { data: members } = (await supabase
     .from("organization_members")
     .select("role, users ( id, name, email, image_url )")
     .eq("org_id", orgId)
-    .order("role", { ascending: false });
+    .order("role", { ascending: false })) as {
+    data: Array<{
+      role: "MANAGER" | "MEMBER";
+      users: {
+        id: string;
+        name: string | null;
+        email: string | null;
+        image_url: string | null;
+      } | null;
+    }> | null;
+  };
 
-  const { data: events } = await supabase
+  const { data: events } = (await supabase
     .from("events")
     .select(
       "id, title, attendance_start_at, attendance_end_at, event_date, location_name"
     )
     .eq("org_id", orgId)
-    .order("attendance_start_at", { ascending: true });
+    .order("attendance_start_at", { ascending: true })) as {
+    data: Array<{
+      id: string;
+      title: string;
+      attendance_start_at: string;
+      attendance_end_at: string;
+      event_date: string;
+      location_name: string | null;
+    }> | null;
+  };
 
   const now = new Date();
   const eventRows = (events ?? []).map((event) => {
