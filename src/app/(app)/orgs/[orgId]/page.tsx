@@ -5,12 +5,8 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 import LeaveOrgButton from "@/components/LeaveOrgButton";
 import RemoveMemberButton from "@/components/RemoveMemberButton";
 import TransferManagerForm from "@/components/TransferManagerForm";
-
-function eventStatusLabel(status: string) {
-  if (status === "ONGOING") return "진행 중";
-  if (status === "ENDED") return "종료";
-  return "예정";
-}
+import { getDictionary } from "@/lib/i18n";
+import { getLocaleFromCookie } from "@/lib/i18n-server";
 
 export default async function OrgDetailPage({
   params,
@@ -21,6 +17,9 @@ export default async function OrgDetailPage({
   if (!session?.user?.id) {
     redirect("/login");
   }
+
+  const locale = await getLocaleFromCookie();
+  const dictionary = getDictionary(locale);
 
   const { orgId } = await params;
   const supabase = getSupabaseAdmin();
@@ -73,22 +72,25 @@ export default async function OrgDetailPage({
 
   return (
     <div className="space-y-10">
-      <section className="rounded-3xl bg-white/90 p-8 shadow-sm ring-1 ring-slate-200/70">
+      <section className="rounded-3xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200/70 sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">
               {org.name}
             </h1>
             <p className="mt-2 text-sm text-slate-600">
-              {org.description ?? "조직 설명이 없습니다."}
+              {org.description ?? dictionary.org.noDescription}
             </p>
             <p className="mt-4 text-xs text-slate-500">
-              초대 코드: <span className="font-semibold">{org.invite_code}</span>
+              {dictionary.org.inviteCodeLabel}:{" "}
+              <span className="font-semibold">{org.invite_code}</span>
             </p>
           </div>
           <div className="space-y-3 text-right">
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-              {isManager ? "매니저" : "회원"}
+              {isManager
+                ? dictionary.dashboard.roleManager
+                : dictionary.dashboard.roleMember}
             </span>
             <LeaveOrgButton orgId={orgId} />
           </div>
@@ -98,18 +100,22 @@ export default async function OrgDetailPage({
       <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">일정</h2>
+            <h2 className="text-xl font-semibold text-slate-900">
+              {dictionary.org.events}
+            </h2>
             {isManager ? (
               <Link
                 href={`/orgs/${orgId}/events/new`}
                 className="rounded-full bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700"
               >
-                일정 생성
+                {dictionary.org.createEvent}
               </Link>
             ) : null}
           </div>
           {eventRows.length === 0 ? (
-            <p className="text-sm text-slate-500">등록된 일정이 없습니다.</p>
+            <p className="text-sm text-slate-500">
+              {dictionary.org.noEvents}
+            </p>
           ) : (
             <div className="space-y-3">
               {eventRows.map((event) => (
@@ -123,11 +129,16 @@ export default async function OrgDetailPage({
                       {event.title}
                     </p>
                     <p className="text-xs text-slate-500">
-                      {event.event_date} · {event.location_name ?? "장소 미지정"}
+                      {event.event_date} ·{" "}
+                      {event.location_name ?? dictionary.event.locationUnset}
                     </p>
                   </div>
                   <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                    {eventStatusLabel(event.status)}
+                    {event.status === "ONGOING"
+                      ? dictionary.org.statusOngoing
+                      : event.status === "ENDED"
+                      ? dictionary.org.statusEnded
+                      : dictionary.org.statusUpcoming}
                   </span>
                 </Link>
               ))}
@@ -137,10 +148,15 @@ export default async function OrgDetailPage({
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">회원</h2>
-            <span className="text-xs text-slate-500">{members?.length ?? 0}명</span>
+            <h2 className="text-xl font-semibold text-slate-900">
+              {dictionary.org.members}
+            </h2>
+            <span className="text-xs text-slate-500">
+              {members?.length ?? 0}
+              {dictionary.org.memberCount}
+            </span>
           </div>
-          <div className="space-y-3 rounded-2xl bg-white/90 p-5 shadow-sm ring-1 ring-slate-200/70">
+          <div className="space-y-3 rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-200/70 sm:p-5">
             {(members ?? []).map((member) => (
               <div
                 key={member.users?.id}
@@ -148,7 +164,9 @@ export default async function OrgDetailPage({
               >
                 <div>
                   <p className="text-sm font-semibold text-slate-900">
-                    {member.users?.name ?? "이름 없음"}
+                    {member.users?.name ??
+                      member.users?.email ??
+                      dictionary.dashboard.roleMember}
                   </p>
                   <p className="text-xs text-slate-500">
                     {member.users?.email}
@@ -156,7 +174,9 @@ export default async function OrgDetailPage({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
-                    {member.role === "MANAGER" ? "매니저" : "회원"}
+                    {member.role === "MANAGER"
+                      ? dictionary.dashboard.roleManager
+                      : dictionary.dashboard.roleMember}
                   </span>
                   {isManager && member.role !== "MANAGER" ? (
                     <RemoveMemberButton
@@ -169,7 +189,7 @@ export default async function OrgDetailPage({
             ))}
           </div>
           {isManager ? (
-            <div className="rounded-2xl bg-white/90 p-5 shadow-sm ring-1 ring-slate-200/70">
+            <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-200/70 sm:p-5">
               <TransferManagerForm orgId={orgId} members={members ?? []} />
             </div>
           ) : null}

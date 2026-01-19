@@ -3,8 +3,10 @@
 import { useState } from "react";
 import LocationPicker from "@/components/LocationPicker";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
+import { useI18n } from "@/components/LocaleProvider";
 
 export default function EventCreateForm({ orgId }: { orgId: string }) {
+  const { dictionary, locale } = useI18n();
   const [title, setTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [startAt, setStartAt] = useState("");
@@ -25,7 +27,7 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
     setLoading(true);
 
     if (!location) {
-      setError("장소를 검색해 선택해주세요.");
+      setError(dictionary.event.locationEmpty);
       setLoading(false);
       return;
     }
@@ -47,7 +49,7 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
     });
 
     if (!response.ok) {
-      setError(getFriendlyErrorMessage(response.status, "eventCreate"));
+      setError(getFriendlyErrorMessage(response.status, "eventCreate", locale));
       setLoading(false);
       return;
     }
@@ -60,9 +62,13 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
       onSubmit={handleSubmit}
       className="space-y-4 rounded-3xl bg-white/90 p-8 shadow-sm ring-1 ring-slate-200/70"
     >
-      <h1 className="text-2xl font-semibold text-slate-900">일정 생성</h1>
+      <h1 className="text-2xl font-semibold text-slate-900">
+        {dictionary.event.createTitle}
+      </h1>
       <div>
-        <label className="text-sm font-semibold text-slate-700">일정 제목</label>
+        <label className="text-sm font-semibold text-slate-700">
+          {dictionary.event.title}
+        </label>
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
@@ -72,7 +78,9 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <label className="text-sm font-semibold text-slate-700">일정 날짜</label>
+          <label className="text-sm font-semibold text-slate-700">
+            {dictionary.event.date}
+          </label>
           <input
             type="date"
             value={eventDate}
@@ -85,7 +93,7 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <label className="text-sm font-semibold text-slate-700">
-            출석 시작 시간
+            {dictionary.event.start}
           </label>
           <input
             type="datetime-local"
@@ -97,7 +105,7 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
         </div>
         <div>
           <label className="text-sm font-semibold text-slate-700">
-            출석 종료 시간
+            {dictionary.event.end}
           </label>
           <input
             type="datetime-local"
@@ -120,7 +128,7 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
         className="w-full rounded-full bg-teal-600 py-3 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-70"
         disabled={loading}
       >
-        일정 생성
+        {dictionary.event.createTitle}
       </button>
     </form>
   );

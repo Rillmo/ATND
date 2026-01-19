@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/components/LocaleProvider";
 
 type Member = {
   user: { id: string; name: string | null; email: string | null } | null;
@@ -14,6 +15,7 @@ export default function TransferManagerForm({
   orgId: string;
   members: Member[];
 }) {
+  const { dictionary } = useI18n();
   const candidates = members.filter((member) => member.role !== "MANAGER");
   const [selected, setSelected] = useState(
     candidates[0]?.user?.id ?? ""
@@ -23,7 +25,7 @@ export default function TransferManagerForm({
   if (candidates.length === 0) {
     return (
       <p className="text-xs text-slate-500">
-        위임할 수 있는 회원이 없습니다.
+        {dictionary.org.transferEmpty}
       </p>
     );
   }
@@ -45,7 +47,7 @@ export default function TransferManagerForm({
   return (
     <form onSubmit={handleTransfer} className="flex flex-col gap-2">
       <label className="text-xs font-semibold text-slate-600">
-        매니저 위임
+        {dictionary.org.transferTitle}
       </label>
       <select
         value={selected}
@@ -54,7 +56,9 @@ export default function TransferManagerForm({
       >
         {candidates.map((member) => (
           <option key={member.user?.id} value={member.user?.id}>
-            {member.user?.name ?? member.user?.email ?? "회원"}
+            {member.user?.name ??
+              member.user?.email ??
+              dictionary.dashboard.roleMember}
           </option>
         ))}
       </select>
@@ -63,7 +67,7 @@ export default function TransferManagerForm({
         className="rounded-full bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800 disabled:opacity-70"
         disabled={loading}
       >
-        위임하기
+        {dictionary.org.transferButton}
       </button>
     </form>
   );

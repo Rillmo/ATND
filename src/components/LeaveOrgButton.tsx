@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
+import { useI18n } from "@/components/LocaleProvider";
 
 export default function LeaveOrgButton({ orgId }: { orgId: string }) {
+  const { dictionary, locale } = useI18n();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +18,7 @@ export default function LeaveOrgButton({ orgId }: { orgId: string }) {
     });
 
     if (!response.ok) {
-      setError(getFriendlyErrorMessage(response.status, "leaveOrg"));
+      setError(getFriendlyErrorMessage(response.status, "leaveOrg", locale));
       setLoading(false);
       return;
     }
@@ -31,7 +33,7 @@ export default function LeaveOrgButton({ orgId }: { orgId: string }) {
         onClick={handleLeave}
         disabled={loading}
       >
-        조직 탈퇴
+        {dictionary.org.leaveOrg}
       </button>
       {error ? <p className="mt-2 text-xs text-rose-600">{error}</p> : null}
     </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
+import { useI18n } from "@/components/LocaleProvider";
 
 export default function CheckInButton({
   orgId,
@@ -10,6 +11,7 @@ export default function CheckInButton({
   orgId: string;
   eventId: string;
 }) {
+  const { dictionary, locale } = useI18n();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -18,7 +20,7 @@ export default function CheckInButton({
     setMessage(null);
 
     if (!navigator.geolocation) {
-      setMessage("브라우저에서 위치 정보를 지원하지 않습니다.");
+      setMessage(dictionary.event.locationNotSupported);
       setLoading(false);
       return;
     }
@@ -38,14 +40,16 @@ export default function CheckInButton({
         );
 
         if (!response.ok) {
-          setMessage(getFriendlyErrorMessage(response.status, "checkin"));
+          setMessage(
+            getFriendlyErrorMessage(response.status, "checkin", locale)
+          );
         } else {
-          setMessage("출석 체크 완료!");
+          setMessage(dictionary.event.checkinSuccess);
         }
         setLoading(false);
       },
       () => {
-        setMessage("위치 정보를 가져오지 못했습니다.");
+        setMessage(dictionary.event.locationUnavailable);
         setLoading(false);
       }
     );
@@ -58,7 +62,7 @@ export default function CheckInButton({
         disabled={loading}
         className="rounded-full bg-teal-600 px-5 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-70"
       >
-        {loading ? "위치 확인 중..." : "출석 체크"}
+        {loading ? dictionary.event.checkingIn : dictionary.event.checkIn}
       </button>
       {message ? <p className="text-xs text-slate-600">{message}</p> : null}
     </div>

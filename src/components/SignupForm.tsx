@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
+import { useI18n } from "@/components/LocaleProvider";
 
 export default function SignupForm() {
+  const { dictionary, locale } = useI18n();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +25,7 @@ export default function SignupForm() {
     });
 
     if (!response.ok) {
-      setError(getFriendlyErrorMessage(response.status, "signup"));
+      setError(getFriendlyErrorMessage(response.status, "signup", locale));
       setLoading(false);
       return;
     }
@@ -36,7 +38,7 @@ export default function SignupForm() {
     });
 
     if (result?.error) {
-      setError("로그인에 실패했습니다. 로그인 화면에서 다시 시도하세요.");
+      setError(dictionary.auth.loginFailed);
       setLoading(false);
       return;
     }
@@ -46,14 +48,18 @@ export default function SignupForm() {
 
   return (
     <div className="rounded-3xl bg-white/90 p-8 shadow-sm ring-1 ring-slate-200/70">
-      <h1 className="text-2xl font-semibold text-slate-900">회원가입</h1>
+      <h1 className="text-2xl font-semibold text-slate-900">
+        {dictionary.auth.signupTitle}
+      </h1>
       <p className="mt-2 text-sm text-slate-500">
-        이메일 가입 후 바로 조직을 만들거나 초대 코드를 입력하세요.
+        {dictionary.auth.signupSubtitle}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
-          <label className="text-sm font-semibold text-slate-700">이름</label>
+          <label className="text-sm font-semibold text-slate-700">
+            {dictionary.auth.name}
+          </label>
           <input
             type="text"
             value={name}
@@ -63,7 +69,9 @@ export default function SignupForm() {
           />
         </div>
         <div>
-          <label className="text-sm font-semibold text-slate-700">이메일</label>
+          <label className="text-sm font-semibold text-slate-700">
+            {dictionary.auth.email}
+          </label>
           <input
             type="email"
             value={email}
@@ -73,7 +81,9 @@ export default function SignupForm() {
           />
         </div>
         <div>
-          <label className="text-sm font-semibold text-slate-700">비밀번호</label>
+          <label className="text-sm font-semibold text-slate-700">
+            {dictionary.auth.password}
+          </label>
           <input
             type="password"
             value={password}
@@ -89,13 +99,13 @@ export default function SignupForm() {
           className="w-full rounded-full bg-teal-600 py-3 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-70"
           disabled={loading}
         >
-          {loading ? "가입 중..." : "이메일로 가입"}
+          {loading ? dictionary.auth.signingUp : dictionary.auth.signupButton}
         </button>
       </form>
 
       <div className="my-6 flex items-center gap-3 text-xs text-slate-400">
         <span className="h-px flex-1 bg-slate-200" />
-        또는
+        {dictionary.auth.divider}
         <span className="h-px flex-1 bg-slate-200" />
       </div>
 
@@ -103,7 +113,7 @@ export default function SignupForm() {
         className="w-full rounded-full border border-slate-300 py-3 text-sm font-semibold text-slate-700 hover:border-slate-400"
         onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
       >
-        Google로 회원가입
+        {dictionary.auth.googleLogin}
       </button>
     </div>
   );

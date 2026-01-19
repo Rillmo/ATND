@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useI18n } from "@/components/LocaleProvider";
 
 const MAPS_SCRIPT_ID = "google-maps-script";
 
@@ -55,6 +56,7 @@ export default function LocationPicker({
   onRadiusChange,
   onChange,
 }: LocationPickerProps) {
+  const { dictionary } = useI18n();
   const mapRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
@@ -102,7 +104,9 @@ export default function LocationPicker({
         const top = results[0];
         resolve({
           address: top.formatted_address,
-          name: top.address_components?.[0]?.long_name ?? "현재 위치",
+          name:
+            top.address_components?.[0]?.long_name ??
+            dictionary.event.currentLocation,
         });
       });
     });
@@ -110,7 +114,7 @@ export default function LocationPicker({
 
   const handleUseMyLocation = async () => {
     if (!navigator.geolocation) {
-      setMessage("브라우저가 위치 정보를 지원하지 않습니다.");
+      setMessage(dictionary.event.locationNotSupported);
       return;
     }
 
@@ -125,26 +129,26 @@ export default function LocationPicker({
         try {
           const geo = await reverseGeocode(lat, lng);
           updateLocation({
-            name: geo.name || "현재 위치",
+            name: geo.name || dictionary.event.currentLocation,
             address: geo.address || "",
             latitude: lat,
             longitude: lng,
           });
         } catch {
           updateLocation({
-            name: "현재 위치",
+            name: dictionary.event.currentLocation,
             address: "",
             latitude: lat,
             longitude: lng,
           });
-          setMessage("주소를 가져오지 못했습니다. 좌표만 설정되었습니다.");
+          setMessage(dictionary.event.locationFailed);
         } finally {
           setLocating(false);
         }
       },
       () => {
         setLocating(false);
-        setMessage("위치 정보를 가져오지 못했습니다.");
+        setMessage(dictionary.event.locationUnavailable);
       }
     );
   };
@@ -153,7 +157,7 @@ export default function LocationPicker({
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
       setStatus("error");
-      setMessage("Google Maps API 키가 설정되지 않았습니다.");
+      setMessage(dictionary.event.mapError);
       return;
     }
 
@@ -223,7 +227,7 @@ export default function LocationPicker({
           autocomplete.addListener("place_changed", () => {
             const place = autocomplete.getPlace();
             if (!place.geometry?.location) {
-              setMessage("선택한 장소의 위치 정보를 가져오지 못했습니다.");
+              setMessage(dictionary.event.locationFailed);
               return;
             }
 
@@ -239,7 +243,7 @@ export default function LocationPicker({
       .catch(() => {
         if (cancelled) return;
         setStatus("error");
-        setMessage("Google Maps 로딩에 실패했습니다.");
+        setMessage(dictionary.event.mapError);
       });
 
     return () => {
@@ -268,11 +272,11 @@ export default function LocationPicker({
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex-1">
           <label className="text-sm font-semibold text-slate-700">
-            장소 검색 (Google Maps)
+            {dictionary.event.locationSearch}
           </label>
           <input
             ref={inputRef}
-            placeholder="장소 또는 주소를 입력하세요"
+            placeholder={dictionary.event.locationPlaceholder}
             className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
           />
         </div>
@@ -282,18 +286,18 @@ export default function LocationPicker({
           className="h-10 rounded-full border border-slate-300 px-4 text-xs font-semibold text-slate-700 hover:border-slate-400 disabled:opacity-70"
           disabled={locating}
         >
-          {locating ? "내 위치 찾는 중..." : "내 위치로 설정"}
+          {locating ? dictionary.event.locatingMe : dictionary.event.locateMe}
         </button>
       </div>
       {message ? <p className="mt-2 text-xs text-rose-600">{message}</p> : null}
 
       <div className="overflow-hidden rounded-2xl border border-slate-200">
-        <div className="h-64 w-full" ref={mapRef} />
+        <div className="h-56 w-full sm:h-64" ref={mapRef} />
       </div>
 
       <div className="rounded-2xl bg-white/80 p-4 ring-1 ring-slate-200/70">
         <label className="text-sm font-semibold text-slate-700">
-          출석 반경 (m)
+          {dictionary.event.radius}
         </label>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <input
@@ -324,22 +328,26 @@ export default function LocationPicker({
           />
         </div>
         <p className="mt-2 text-xs text-slate-500">
-          지도 위 원형 오버레이를 직접 드래그해 반경을 조절할 수도 있습니다.
+          {dictionary.event.radiusHint}
         </p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="rounded-xl bg-slate-50 px-4 py-3">
-          <p className="text-xs font-semibold text-slate-500">선택된 장소</p>
+          <p className="text-xs font-semibold text-slate-500">
+            {dictionary.event.selectedLocation}
+          </p>
           <p className="mt-1 text-sm text-slate-700">
-            {value?.name || "아직 선택되지 않았습니다."}
+            {value?.name || dictionary.event.locationEmpty}
           </p>
           <p className="mt-1 text-xs text-slate-500">
             {value?.address || ""}
           </p>
         </div>
         <div className="rounded-xl bg-slate-50 px-4 py-3">
-          <p className="text-xs font-semibold text-slate-500">좌표</p>
+          <p className="text-xs font-semibold text-slate-500">
+            {dictionary.event.coordinates}
+          </p>
           <p className="mt-1 text-sm text-slate-700">
             {value
               ? `${value.latitude.toFixed(6)}, ${value.longitude.toFixed(6)}`
@@ -349,11 +357,13 @@ export default function LocationPicker({
       </div>
 
       {status === "loading" ? (
-        <p className="text-xs text-slate-500">지도 로딩 중...</p>
+        <p className="text-xs text-slate-500">
+          {dictionary.event.mapLoading}
+        </p>
       ) : null}
       {status === "error" ? (
         <p className="text-xs text-rose-600">
-          지도 로딩 실패. API 키와 권한을 확인해주세요.
+          {dictionary.event.mapError}
         </p>
       ) : null}
     </div>

@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import CheckInButton from "@/components/CheckInButton";
+import EventLocationMap from "@/components/EventLocationMap";
+import { getDictionary } from "@/lib/i18n";
+import { getLocaleFromCookie } from "@/lib/i18n-server";
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -24,6 +27,9 @@ export default async function EventDetailPage({
   if (!session?.user?.id) {
     redirect("/login");
   }
+
+  const locale = await getLocaleFromCookie();
+  const dictionary = getDictionary(locale);
 
   const { orgId, eventId } = await params;
   const supabase = getSupabaseAdmin();
@@ -104,7 +110,12 @@ export default async function EventDetailPage({
     };
   });
 
-  const windowLabel = now < start ? "출석 시작 전" : now > end ? "종료" : "출석 가능";
+  const windowLabel =
+    now < start
+      ? dictionary.status.checkinBefore
+      : now > end
+      ? dictionary.status.checkinClosed
+      : dictionary.status.checkinOpen;
 
   return (
     <div className="space-y-8">
@@ -112,23 +123,25 @@ export default async function EventDetailPage({
         href={`/orgs/${orgId}`}
         className="text-sm font-semibold text-slate-600 hover:text-slate-900"
       >
-        ← 조직으로 돌아가기
+        ← {dictionary.org.backToOrg}
       </Link>
-      <section className="rounded-3xl bg-white/90 p-8 shadow-sm ring-1 ring-slate-200/70">
+      <section className="rounded-3xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200/70 sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">
               {event.title}
             </h1>
             <p className="mt-2 text-sm text-slate-600">
-              {event.event_date} · {event.location_name ?? "장소 미지정"}
+              {event.event_date} ·{" "}
+              {event.location_name ?? dictionary.event.locationUnset}
             </p>
             <p className="mt-2 text-xs text-slate-500">
-              출석 가능 시간: {formatDateTime(event.attendance_start_at)} ~{" "}
+              {dictionary.event.windowLabel}:{" "}
+              {formatDateTime(event.attendance_start_at)} ~{" "}
               {formatDateTime(event.attendance_end_at)}
             </p>
             <p className="mt-1 text-xs text-slate-500">
-              반경 {event.radius_meters}m 내에서 체크인 가능
+              {dictionary.event.radius}: {event.radius_meters}m
             </p>
           </div>
           <div className="text-right">
@@ -136,11 +149,17 @@ export default async function EventDetailPage({
               {windowLabel}
             </span>
             <p className="mt-3 text-xs text-slate-500">
-              내 출석 상태: {myStatus}
+              {dictionary.event.myStatus}:{" "}
+              {myStatus === "ATTENDED"
+                ? dictionary.status.attended
+                : myStatus === "ABSENT"
+                ? dictionary.status.absent
+                : dictionary.status.notAttended}
             </p>
             {attendanceRecord?.checked_in_at ? (
               <p className="text-xs text-slate-500">
-                체크인 시각: {formatDateTime(attendanceRecord.checked_in_at)}
+                {dictionary.event.checkedAt}:{" "}
+                {formatDateTime(attendanceRecord.checked_in_at)}
               </p>
             ) : null}
           </div>
@@ -150,9 +169,24 @@ export default async function EventDetailPage({
         </div>
       </section>
 
+      <EventLocationMap
+        title={event.location_name ?? dictionary.event.locationUnset}
+        address={event.location_address}
+        latitude={event.latitude}
+        longitude={event.longitude}
+        radiusMeters={event.radius_meters}
+        labels={{
+          mapLoading: dictionary.event.mapLoading,
+          mapError: dictionary.event.mapError,
+          radius: dictionary.event.radius,
+        }}
+      />
+
       {membership.role === "MANAGER" ? (
-        <section className="rounded-3xl bg-white/90 p-8 shadow-sm ring-1 ring-slate-200/70">
-          <h2 className="text-xl font-semibold text-slate-900">출석 현황</h2>
+        <section className="rounded-3xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200/70 sm:p-8">
+          <h2 className="text-xl font-semibold text-slate-900">
+            {dictionary.event.managerAttendance}
+          </h2>
           <div className="mt-4 space-y-3">
             {memberAttendance.map((entry) => (
               <div
@@ -161,16 +195,24 @@ export default async function EventDetailPage({
               >
                 <div>
                   <p className="text-sm font-semibold text-slate-900">
-                    {entry.user?.name ?? entry.user?.email ?? "회원"}
+                    {entry.user?.name ??
+                      entry.user?.email ??
+                      dictionary.dashboard.roleMember}
                   </p>
                   <p className="text-xs text-slate-500">
                     {entry.checkedInAt
-                      ? `체크인: ${formatDateTime(entry.checkedInAt)}`
-                      : "체크인 기록 없음"}
+                      ? `${dictionary.event.checkedAt}: ${formatDateTime(
+                          entry.checkedInAt
+                        )}`
+                      : dictionary.event.noCheckin}
                   </p>
                 </div>
                 <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600">
-                  {entry.status}
+                  {entry.status === "ATTENDED"
+                    ? dictionary.status.attended
+                    : entry.status === "ABSENT"
+                    ? dictionary.status.absent
+                    : dictionary.status.notAttended}
                 </span>
               </div>
             ))}
