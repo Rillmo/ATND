@@ -13,6 +13,7 @@ export const dictionaries = {
   en: {
     nav: {
       dashboard: "Dashboard",
+      settings: "Settings",
       login: "Log In",
       signup: "Sign Up",
       logout: "Log Out",
@@ -169,6 +170,10 @@ export const dictionaries = {
       checkinBefore: "Not started",
     },
     errors: {
+      accountDelete: {
+        409: "Transfer manager role or delete events before leaving.",
+        default: "Unable to delete account.",
+      },
       signup: {
         409: "This email is already registered.",
         default: "Unable to sign up. Please try again.",
@@ -201,10 +206,28 @@ export const dictionaries = {
         500: "Server error. Please try again later.",
       },
     },
+    settings: {
+      title: "Settings",
+      subtitle: "Manage your profile and account settings.",
+      accountSection: "Account",
+      nameLabel: "Name",
+      emailLabel: "Email",
+      deleteTitle: "Delete account",
+      deleteDescription:
+        "This removes your account and membership history. It cannot be undone.",
+      deleteWarning:
+        "Managers must transfer ownership and remove events before deleting.",
+      deleteInputLabel: "Type DELETE to confirm",
+      deleteInputPlaceholder: "DELETE",
+      deleteMismatch: "Please type DELETE to confirm.",
+      deleteButton: "Delete account",
+      deleting: "Deleting...",
+    },
   },
   ko: {
     nav: {
       dashboard: "대시보드",
+      settings: "설정",
       login: "로그인",
       signup: "회원가입",
       logout: "로그아웃",
@@ -358,6 +381,10 @@ export const dictionaries = {
       checkinBefore: "출석 시작 전",
     },
     errors: {
+      accountDelete: {
+        409: "매니저 위임 또는 생성한 일정 삭제 후 탈퇴할 수 있습니다.",
+        default: "회원탈퇴에 실패했습니다.",
+      },
       signup: {
         409: "이미 가입된 이메일입니다.",
         default: "회원가입에 실패했습니다.",
@@ -389,6 +416,22 @@ export const dictionaries = {
         404: "요청한 정보를 찾을 수 없습니다.",
         500: "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
       },
+    },
+    settings: {
+      title: "설정",
+      subtitle: "계정 및 개인정보 설정을 관리하세요.",
+      accountSection: "계정",
+      nameLabel: "이름",
+      emailLabel: "이메일",
+      deleteTitle: "회원탈퇴",
+      deleteDescription: "계정을 삭제하면 복구할 수 없습니다.",
+      deleteWarning:
+        "매니저는 위임하고, 생성한 일정이 없어야 탈퇴할 수 있습니다.",
+      deleteInputLabel: "확인을 위해 DELETE를 입력하세요",
+      deleteInputPlaceholder: "DELETE",
+      deleteMismatch: "DELETE를 입력해야 탈퇴할 수 있습니다.",
+      deleteButton: "회원탈퇴",
+      deleting: "탈퇴 처리 중...",
     },
   },
 };

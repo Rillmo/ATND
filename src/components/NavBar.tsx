@@ -29,6 +29,18 @@ export default async function NavBar() {
               >
                 {dictionary.nav.dashboard}
               </Link>
+              <Link
+                href="/settings"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                aria-label={dictionary.nav.settings}
+                title={dictionary.nav.settings}
+              >
+                <img
+                  src="/setting.png"
+                  alt=""
+                  className="h-5 w-5"
+                />
+              </Link>
               <SignOutButton label={dictionary.nav.logout} />
             </>
           ) : (

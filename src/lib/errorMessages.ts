@@ -1,6 +1,7 @@
 import { getDictionary, type Locale } from "@/lib/i18n";
 
 type ErrorContext =
+  | "accountDelete"
   | "signup"
   | "orgCreate"
   | "orgJoin"
