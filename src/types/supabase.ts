@@ -15,6 +15,8 @@ export type Database = {
           name: string;
           email: string;
           image_url: string | null;
+          terms_accepted_at: string | null;
+          privacy_accepted_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -22,6 +24,8 @@ export type Database = {
           name: string;
           email: string;
           image_url?: string | null;
+          terms_accepted_at?: string | null;
+          privacy_accepted_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -29,6 +33,8 @@ export type Database = {
           name?: string;
           email?: string;
           image_url?: string | null;
+          terms_accepted_at?: string | null;
+          privacy_accepted_at?: string | null;
           created_at?: string;
         };
         Relationships: [];

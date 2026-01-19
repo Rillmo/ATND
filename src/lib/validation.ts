@@ -4,6 +4,8 @@ export const registerSchema = z.object({
   name: z.string().min(2).max(50),
   email: z.string().email(),
   password: z.string().min(8).max(100),
+  termsAccepted: z.boolean(),
+  privacyAccepted: z.boolean(),
 });
 
 export const orgCreateSchema = z.object({

@@ -98,6 +98,16 @@ export const authOptions: NextAuthOptions = {
           { onConflict: "email" }
         );
 
+      const { data: existing } = await supabase
+        .from("users")
+        .select("privacy_accepted_at, terms_accepted_at")
+        .eq("email", user.email)
+        .single();
+
+      if (!existing?.privacy_accepted_at || !existing?.terms_accepted_at) {
+        return "/consent";
+      }
+
       return true;
     },
     async jwt({ token, user, account }) {

@@ -4,12 +4,15 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { useI18n } from "@/components/LocaleProvider";
+import Link from "next/link";
 
 export default function SignupForm() {
   const { dictionary, locale } = useI18n();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +24,13 @@ export default function SignupForm() {
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        termsAccepted,
+        privacyAccepted,
+      }),
     });
 
     if (!response.ok) {
@@ -93,6 +102,38 @@ export default function SignupForm() {
             required
           />
         </div>
+        <label className="flex items-start gap-2 text-xs text-slate-600">
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={(event) => setTermsAccepted(event.target.checked)}
+            className="mt-1"
+            required
+          />
+          <span>
+            {dictionary.auth.termsAgree}{" "}
+            <Link href="/terms" className="underline">
+              {dictionary.auth.termsLabel}
+            </Link>
+            .
+          </span>
+        </label>
+        <label className="flex items-start gap-2 text-xs text-slate-600">
+          <input
+            type="checkbox"
+            checked={privacyAccepted}
+            onChange={(event) => setPrivacyAccepted(event.target.checked)}
+            className="mt-1"
+            required
+          />
+          <span>
+            {dictionary.auth.privacyAgree}{" "}
+            <Link href="/privacy" className="underline">
+              {dictionary.auth.privacyLabel}
+            </Link>
+            .
+          </span>
+        </label>
         {error ? <p className="text-sm text-rose-600">{error}</p> : null}
         <button
           type="submit"

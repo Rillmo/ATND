@@ -30,3 +30,12 @@ npm run dev
 - 매니저만 일정 생성/수정/삭제, 출석 현황 조회가 가능합니다.
 - 출석 체크는 브라우저 위치 권한이 필요합니다.
 - 일정 생성 화면의 장소 검색은 Google Maps JavaScript API + Places API가 필요합니다.
+
+## 추가: 약관/개인정보 동의 컬럼
+기존 DB를 사용 중이라면 아래 SQL을 추가로 실행하세요.
+
+```
+alter table users
+  add column if not exists terms_accepted_at timestamptz,
+  add column if not exists privacy_accepted_at timestamptz;
+```

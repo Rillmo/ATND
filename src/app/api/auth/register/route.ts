@@ -12,6 +12,9 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  if (!parsed.data.termsAccepted || !parsed.data.privacyAccepted) {
+    return NextResponse.json({ error: "Consent required" }, { status: 400 });
+  }
 
   const supabase = getSupabaseAdmin();
   const { data: existing } = await supabase
@@ -35,6 +38,8 @@ export async function POST(request: Request) {
       name: parsed.data.name,
       email: parsed.data.email,
       image_url: null,
+      terms_accepted_at: new Date().toISOString(),
+      privacy_accepted_at: new Date().toISOString(),
     })
     .select("id")
     .single();

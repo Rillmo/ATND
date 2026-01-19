@@ -59,6 +59,14 @@ export const dictionaries = {
       signingUp: "Creating account...",
       invalidCredentials: "Email or password is incorrect.",
       loginFailed: "Login failed. Please try again from the login page.",
+      termsAgree: "I agree to the",
+      privacyAgree: "I agree to the",
+      termsLabel: "Terms",
+      privacyLabel: "Privacy Policy",
+      consentTitle: "Complete signup",
+      consentSubtitle:
+        "Please review and accept the terms and privacy policy to continue.",
+      consentContinue: "Continue",
     },
     dashboard: {
       greeting: "Welcome",
@@ -239,6 +247,14 @@ export const dictionaries = {
       signingUp: "가입 중...",
       invalidCredentials: "이메일 또는 비밀번호가 올바르지 않습니다.",
       loginFailed: "로그인에 실패했습니다. 로그인 화면에서 다시 시도하세요.",
+      termsAgree: "다음에 동의합니다:",
+      privacyAgree: "다음에 동의합니다:",
+      termsLabel: "이용약관",
+      privacyLabel: "개인정보처리방침",
+      consentTitle: "약관 동의",
+      consentSubtitle:
+        "서비스 이용을 위해 이용약관과 개인정보처리방침에 동의해주세요.",
+      consentContinue: "계속",
     },
     dashboard: {
       greeting: "안녕하세요",

@@ -5,6 +5,8 @@ create table if not exists users (
   name text not null,
   email text not null unique,
   image_url text,
+  terms_accepted_at timestamptz,
+  privacy_accepted_at timestamptz,
   created_at timestamptz not null default now()
 );
 
