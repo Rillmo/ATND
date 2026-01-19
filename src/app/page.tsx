@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n";
 import { getLocaleFromCookie } from "@/lib/i18n-server";
 import { getAuthSession } from "@/auth";
@@ -8,6 +9,9 @@ export default async function Home() {
   const dictionary = getDictionary(locale);
   const session = await getAuthSession();
   const isLoggedIn = Boolean(session?.user?.id);
+  if (session?.user?.needsConsent) {
+    redirect("/consent");
+  }
 
   return (
     <div className="space-y-16">

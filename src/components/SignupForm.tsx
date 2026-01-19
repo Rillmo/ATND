@@ -152,7 +152,7 @@ export default function SignupForm() {
 
       <button
         className="w-full rounded-full border border-slate-300 py-3 text-sm font-semibold text-slate-700 hover:border-slate-400"
-        onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+        onClick={() => signIn("google", { callbackUrl: "/consent" })}
       >
         {dictionary.auth.googleLogin}
       </button>

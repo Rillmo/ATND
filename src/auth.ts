@@ -75,6 +75,18 @@ providers.push(
 );
 
 export const authOptions: NextAuthOptions = {
+  debug: process.env.NEXTAUTH_DEBUG === "true",
+  logger: {
+    error(code, metadata) {
+      console.error("[auth:error]", code, metadata);
+    },
+    warn(code) {
+      console.warn("[auth:warn]", code);
+    },
+    debug(code, metadata) {
+      console.log("[auth:debug]", code, metadata);
+    },
+  },
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
@@ -82,58 +94,125 @@ export const authOptions: NextAuthOptions = {
   providers,
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider !== "google" || !user.email) {
+      try {
+        if (account?.provider !== "google" || !user.email) {
+          return true;
+        }
+
+        const supabase = getSupabaseAdmin();
+        const { error: upsertError } = await supabase
+          .from("users")
+          .upsert(
+            {
+              email: user.email,
+              name: user.name ?? "",
+              image_url: user.image ?? null,
+            },
+            { onConflict: "email" }
+          );
+
+        if (upsertError) {
+          console.error("[auth:signIn] user upsert failed", upsertError);
+          return false;
+        }
+
+        const { data: existing, error: consentError } = await supabase
+          .from("users")
+          .select("privacy_accepted_at, terms_accepted_at")
+          .eq("email", user.email)
+          .single();
+
+        if (consentError) {
+          console.error("[auth:signIn] consent lookup failed", consentError);
+          return false;
+        }
+
+        const needsConsent =
+          !existing?.privacy_accepted_at || !existing?.terms_accepted_at;
+        (
+          user as typeof user & {
+            needsConsent?: boolean;
+          }
+        ).needsConsent = needsConsent;
+
         return true;
+      } catch (error) {
+        console.error("[auth:signIn] unexpected error", error);
+        return false;
       }
-
-      const supabase = getSupabaseAdmin();
-      await supabase
-        .from("users")
-        .upsert(
-          {
-            email: user.email,
-            name: user.name ?? "",
-            image_url: user.image ?? null,
-          },
-          { onConflict: "email" }
-        );
-
-      const { data: existing } = await supabase
-        .from("users")
-        .select("privacy_accepted_at, terms_accepted_at")
-        .eq("email", user.email)
-        .single();
-
-      if (!existing?.privacy_accepted_at || !existing?.terms_accepted_at) {
-        return "/consent";
-      }
-
-      return true;
     },
     async jwt({ token, user, account }) {
-      if (user?.id && account?.provider !== "google") {
-        token.userId = user.id;
-      }
+      try {
+        const userWithConsent = user as
+          | (typeof user & { needsConsent?: boolean })
+          | undefined;
+        const shouldLookupUser =
+          Boolean(account?.provider && token.email) ||
+          (!token.userId && token.email);
 
-      if ((!token.userId || account?.provider === "google") && token.email) {
-        const supabase = getSupabaseAdmin();
-        const { data: existing } = await supabase
-          .from("users")
-          .select("id")
-          .eq("email", token.email)
-          .single();
-        if (existing?.id) {
-          token.userId = existing.id;
+        if (shouldLookupUser && token.email) {
+          const supabase = getSupabaseAdmin();
+          const { data: existing, error: userError } = await supabase
+            .from("users")
+            .select("id, privacy_accepted_at, terms_accepted_at")
+            .eq("email", token.email)
+            .single();
+
+          if (userError) {
+            console.error("[auth:jwt] user lookup failed", userError);
+          }
+
+          if (existing?.id) {
+            token.userId = existing.id;
+            token.needsConsent =
+              !existing.privacy_accepted_at || !existing.terms_accepted_at;
+          }
+        } else if (userWithConsent?.id && account?.provider !== "google") {
+          token.userId = userWithConsent.id;
         }
-      }
 
-      return token;
+        if (typeof userWithConsent?.needsConsent === "boolean") {
+          token.needsConsent = userWithConsent.needsConsent;
+        }
+
+        return token;
+      } catch (error) {
+        console.error("[auth:jwt] unexpected error", error);
+        return token;
+      }
     },
     async session({ session, token }) {
-      if (session.user && token.userId) {
-        session.user.id = token.userId as string;
+      if (session.user) {
+        if (token.userId) {
+          session.user.id = token.userId as string;
+        }
+
+        if (typeof token.needsConsent === "boolean") {
+          session.user.needsConsent = token.needsConsent;
+        }
       }
       return session;
+    },
+  },
+  events: {
+    async signIn(message) {
+      console.log("[auth:event] signIn", {
+        provider: message.account?.provider,
+        userId: message.user?.id,
+        email: message.user?.email,
+      });
+    },
+    async signOut(message) {
+      console.log("[auth:event] signOut", {
+        session: Boolean(message.session),
+        token: Boolean(message.token),
+      });
+    },
+    async session(message) {
+      console.log("[auth:event] session", {
+        userId: message.session?.user?.id,
+        email: message.session?.user?.email,
+      });
     },
   },
 };
