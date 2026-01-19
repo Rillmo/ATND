@@ -6,6 +6,7 @@ import NavBar from "@/components/NavBar";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { getDictionary } from "@/lib/i18n";
 import { getLocaleFromCookie } from "@/lib/i18n-server";
+import { Analytics } from "@vercel/analytics/react";
 
 const display = Space_Grotesk({
   variable: "--font-display",
@@ -46,6 +47,7 @@ export default async function RootLayout({
                 {children}
               </main>
             </div>
+            <Analytics />
           </LocaleProvider>
         </Providers>
       </body>
