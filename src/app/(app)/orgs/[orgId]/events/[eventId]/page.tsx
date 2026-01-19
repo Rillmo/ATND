@@ -71,12 +71,14 @@ export default async function EventDetailPage({
     redirect(`/orgs/${orgId}`);
   }
 
-  const { data: attendanceRecord } = await supabase
+  const { data: attendanceRecord } = (await supabase
     .from("attendances")
     .select("status, checked_in_at")
     .eq("event_id", eventId)
     .eq("user_id", session.user.id)
-    .single();
+    .single()) as {
+    data: { status: "ATTENDED" | "NOT_ATTENDED" | "ABSENT"; checked_in_at: string | null } | null;
+  };
 
   const now = new Date();
   const end = new Date(event.attendance_end_at);
