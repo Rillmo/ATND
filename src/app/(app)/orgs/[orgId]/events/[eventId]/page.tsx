@@ -1,22 +1,13 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import CheckInButton from "@/components/CheckInButton";
+import DateTimeText from "@/components/DateTimeText";
 import EventLocationMap from "@/components/EventLocationMap";
+import EventDeleteButton from "@/components/EventDeleteButton";
+import Link from "next/link";
 import { getDictionary } from "@/lib/i18n";
 import { getLocaleFromCookie } from "@/lib/i18n-server";
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  return date.toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export default async function EventDetailPage({
   params,
@@ -150,12 +141,26 @@ export default async function EventDetailPage({
 
   return (
     <div className="space-y-8">
-      <Link
-        href={`/orgs/${orgId}`}
-        className="text-sm font-semibold text-slate-600 hover:text-slate-900"
-      >
-        ← {dictionary.org.backToOrg}
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link
+          href={`/orgs/${orgId}`}
+          className="text-sm font-semibold text-slate-600 hover:text-slate-900"
+        >
+          ← {dictionary.org.backToOrg}
+        </Link>
+        {membership.role === "MANAGER" &&
+        new Date(event.attendance_start_at) > new Date() ? (
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/orgs/${orgId}/events/${eventId}/edit`}
+              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-slate-300"
+            >
+              {dictionary.event.editTitle}
+            </Link>
+            <EventDeleteButton orgId={orgId} eventId={eventId} />
+          </div>
+        ) : null}
+      </div>
       <section className="rounded-3xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200/70 sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div>
@@ -168,8 +173,8 @@ export default async function EventDetailPage({
             </p>
             <p className="mt-2 text-xs text-slate-500">
               {dictionary.event.windowLabel}:{" "}
-              {formatDateTime(event.attendance_start_at)} ~{" "}
-              {formatDateTime(event.attendance_end_at)}
+              <DateTimeText value={event.attendance_start_at} /> ~{" "}
+              <DateTimeText value={event.attendance_end_at} />
             </p>
             <p className="mt-1 text-xs text-slate-500">
               {dictionary.event.radius}: {event.radius_meters}m
@@ -190,13 +195,17 @@ export default async function EventDetailPage({
             {attendanceRecord?.checked_in_at ? (
               <p className="text-xs text-slate-500">
                 {dictionary.event.checkedAt}:{" "}
-                {formatDateTime(attendanceRecord.checked_in_at)}
+                <DateTimeText value={attendanceRecord.checked_in_at} />
               </p>
             ) : null}
           </div>
         </div>
         <div className="mt-6">
-          <CheckInButton orgId={orgId} eventId={eventId} />
+          <CheckInButton
+            orgId={orgId}
+            eventId={eventId}
+            checkedIn={attendanceRecord?.status === "ATTENDED"}
+          />
         </div>
       </section>
 
@@ -232,10 +241,11 @@ export default async function EventDetailPage({
                   </p>
                   <p className="text-xs text-slate-500">
                     {entry.checkedInAt
-                      ? `${dictionary.event.checkedAt}: ${formatDateTime(
-                          entry.checkedInAt
-                        )}`
+                      ? `${dictionary.event.checkedAt}: `
                       : dictionary.event.noCheckin}
+                    {entry.checkedInAt ? (
+                      <DateTimeText value={entry.checkedInAt} />
+                    ) : null}
                   </p>
                 </div>
                 <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600">

@@ -34,6 +34,11 @@ export const eventSchema = z.object({
   longitude: z.number().min(-180).max(180),
 });
 
+export const recurrenceSchema = z.object({
+  weeks: z.number().int().min(1).max(12),
+  weekdays: z.array(z.number().int().min(1).max(7)).min(1),
+});
+
 export const profileUpdateSchema = z.object({
   name: z.string().min(2).max(50).optional(),
   imageUrl: z.string().url().optional().nullable(),

@@ -97,6 +97,9 @@ export default async function OrgDetailPage({
 
     return { ...event, status };
   });
+  const upcomingEvents = eventRows.filter((event) => event.status === "UPCOMING");
+  const ongoingEvents = eventRows.filter((event) => event.status === "ONGOING");
+  const endedEvents = eventRows.filter((event) => event.status === "ENDED");
 
   const isManager = membership.role === "MANAGER";
 
@@ -147,31 +150,95 @@ export default async function OrgDetailPage({
               {dictionary.org.noEvents}
             </p>
           ) : (
-            <div className="space-y-3">
-              {eventRows.map((event) => (
-                <Link
-                  key={event.id}
-                  href={`/orgs/${orgId}/events/${event.id}`}
-                  className="flex items-center justify-between rounded-2xl bg-white/90 px-5 py-4 shadow-sm ring-1 ring-slate-200/70"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {event.title}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {event.event_date} ·{" "}
-                      {event.location_name ?? dictionary.event.locationUnset}
-                    </p>
+            <div className="space-y-6">
+              {ongoingEvents.length ? (
+                <div className="space-y-3 rounded-3xl border border-teal-200/70 bg-teal-50/60 p-4 shadow-sm sm:p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="rounded-full bg-teal-600 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">
+                      {dictionary.org.sectionOngoing}
+                    </span>
+                    <span className="text-xs font-semibold text-teal-700">
+                      {ongoingEvents.length} {dictionary.org.events}
+                    </span>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                    {event.status === "ONGOING"
-                      ? dictionary.org.statusOngoing
-                      : event.status === "ENDED"
-                      ? dictionary.org.statusEnded
-                      : dictionary.org.statusUpcoming}
-                  </span>
-                </Link>
-              ))}
+                  {ongoingEvents.map((event) => (
+                    <Link
+                      key={event.id}
+                      href={`/orgs/${orgId}/events/${event.id}`}
+                      className="flex items-center justify-between rounded-2xl bg-white px-5 py-4 shadow-sm ring-1 ring-teal-200/70"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {event.title}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {event.event_date} ·{" "}
+                          {event.location_name ?? dictionary.event.locationUnset}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        {dictionary.org.statusOngoing}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+
+              {upcomingEvents.length ? (
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    {dictionary.org.sectionUpcoming}
+                  </p>
+                  {upcomingEvents.map((event) => (
+                    <Link
+                      key={event.id}
+                      href={`/orgs/${orgId}/events/${event.id}`}
+                      className="flex items-center justify-between rounded-2xl bg-white/90 px-5 py-4 shadow-sm ring-1 ring-slate-200/70"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {event.title}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {event.event_date} ·{" "}
+                          {event.location_name ?? dictionary.event.locationUnset}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        {dictionary.org.statusUpcoming}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+
+              {endedEvents.length ? (
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    {dictionary.org.sectionEnded}
+                  </p>
+                  {endedEvents.map((event) => (
+                    <Link
+                      key={event.id}
+                      href={`/orgs/${orgId}/events/${event.id}`}
+                      className="flex items-center justify-between rounded-2xl bg-white/90 px-5 py-4 shadow-sm ring-1 ring-slate-200/70"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {event.title}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {event.event_date} ·{" "}
+                          {event.location_name ?? dictionary.event.locationUnset}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        {dictionary.org.statusEnded}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
             </div>
           )}
         </div>

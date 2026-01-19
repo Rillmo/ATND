@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { getDictionary } from "@/lib/i18n";
 import { getLocaleFromCookie } from "@/lib/i18n-server";
+import { getAuthSession } from "@/auth";
 
 export default async function Home() {
   const locale = await getLocaleFromCookie();
   const dictionary = getDictionary(locale);
+  const session = await getAuthSession();
+  const isLoggedIn = Boolean(session?.user?.id);
 
   return (
     <div className="space-y-16">
@@ -19,20 +22,22 @@ export default async function Home() {
           <p className="text-lg text-slate-600">
             {dictionary.home.description}
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/signup"
-              className="w-full rounded-full bg-teal-600 px-6 py-3 text-center text-sm font-semibold text-white shadow hover:bg-teal-700 sm:w-auto"
-            >
-              {dictionary.home.ctaStart}
-            </Link>
-            <Link
-              href="/login"
-              className="w-full rounded-full border border-slate-300 px-6 py-3 text-center text-sm font-semibold text-slate-700 hover:border-slate-400 sm:w-auto"
-            >
-              {dictionary.home.ctaLogin}
-            </Link>
-          </div>
+          {!isLoggedIn ? (
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/signup"
+                className="w-full rounded-full bg-teal-600 px-6 py-3 text-center text-sm font-semibold text-white shadow hover:bg-teal-700 sm:w-auto"
+              >
+                {dictionary.home.ctaStart}
+              </Link>
+              <Link
+                href="/login"
+                className="w-full rounded-full border border-slate-300 px-6 py-3 text-center text-sm font-semibold text-slate-700 hover:border-slate-400 sm:w-auto"
+              >
+                {dictionary.home.ctaLogin}
+              </Link>
+            </div>
+          ) : null}
         </div>
         <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-lg">
           <div className="space-y-6">

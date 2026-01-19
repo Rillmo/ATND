@@ -7,9 +7,11 @@ import { useI18n } from "@/components/LocaleProvider";
 export default function CheckInButton({
   orgId,
   eventId,
+  checkedIn,
 }: {
   orgId: string;
   eventId: string;
+  checkedIn: boolean;
 }) {
   const { dictionary, locale } = useI18n();
   const [loading, setLoading] = useState(false);
@@ -59,10 +61,18 @@ export default function CheckInButton({
     <div className="space-y-2">
       <button
         onClick={handleCheckIn}
-        disabled={loading}
-        className="rounded-full bg-teal-600 px-5 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-70"
+        disabled={loading || checkedIn}
+        className={`rounded-full px-5 py-2 text-sm font-semibold text-white transition ${
+          checkedIn
+            ? "bg-slate-400"
+            : "bg-teal-600 hover:bg-teal-700 disabled:opacity-70"
+        }`}
       >
-        {loading ? dictionary.event.checkingIn : dictionary.event.checkIn}
+        {checkedIn
+          ? dictionary.event.checkinSuccess
+          : loading
+          ? dictionary.event.checkingIn
+          : dictionary.event.checkIn}
       </button>
       {message ? <p className="text-xs text-slate-600">{message}</p> : null}
     </div>

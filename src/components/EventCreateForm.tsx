@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import LocationPicker from "@/components/LocationPicker";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { useI18n } from "@/components/LocaleProvider";
@@ -18,8 +18,37 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
     latitude: number;
     longitude: number;
   } | null>(null);
+  const [recurring, setRecurring] = useState(false);
+  const [weeksCount, setWeeksCount] = useState(6);
+  const [weekdays, setWeekdays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const previewDates = useMemo(() => {
+    if (!recurring || !eventDate) return "-";
+    const baseDateParts = eventDate.split("-").map(Number);
+    if (baseDateParts.length !== 3) return "-";
+    const [year, month, day] = baseDateParts;
+    const baseDate = new Date(year, month - 1, day);
+    const baseDay = ((baseDate.getDay() + 6) % 7) + 1;
+    const monday = new Date(baseDate);
+    monday.setDate(baseDate.getDate() - (baseDay - 1));
+    const dates: string[] = [];
+    for (let week = 0; week < weeksCount; week += 1) {
+      weekdays.forEach((weekday) => {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + (weekday - 1) + week * 7);
+        dates.push(
+          `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+            2,
+            "0"
+          )}-${String(date.getDate()).padStart(2, "0")}`
+        );
+      });
+    }
+    dates.sort();
+    return dates.length ? dates.slice(0, 5).join(", ") : "-";
+  }, [eventDate, recurring, weeksCount, weekdays]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,6 +57,12 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
 
     if (!location) {
       setError(dictionary.event.locationEmpty);
+      setLoading(false);
+      return;
+    }
+
+    if (recurring && weekdays.length === 0) {
+      setError(dictionary.event.repeatWeekdays);
       setLoading(false);
       return;
     }
@@ -45,6 +80,12 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
         locationAddress: location.address || null,
         latitude: location.latitude,
         longitude: location.longitude,
+        recurrence: recurring
+          ? {
+              weeks: weeksCount,
+              weekdays,
+            }
+          : undefined,
       }),
     });
 
@@ -116,6 +157,80 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
           />
         </div>
       </div>
+
+      <div className="rounded-2xl bg-slate-50 px-4 py-4">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-semibold text-slate-700">
+            {dictionary.event.repeatLabel}
+          </label>
+          <button
+            type="button"
+            onClick={() => setRecurring((prev) => !prev)}
+            className="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600"
+          >
+            {recurring ? "ON" : "OFF"}
+          </button>
+        </div>
+        {recurring ? (
+          <div className="mt-4 space-y-4">
+            <div>
+              <label className="text-xs font-semibold text-slate-600">
+                {dictionary.event.repeatWeekdays}
+              </label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[
+                  { label: dictionary.event.weekdayMon, value: 1 },
+                  { label: dictionary.event.weekdayTue, value: 2 },
+                  { label: dictionary.event.weekdayWed, value: 3 },
+                  { label: dictionary.event.weekdayThu, value: 4 },
+                  { label: dictionary.event.weekdayFri, value: 5 },
+                  { label: dictionary.event.weekdaySat, value: 6 },
+                  { label: dictionary.event.weekdaySun, value: 7 },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() =>
+                      setWeekdays((prev) =>
+                        prev.includes(item.value)
+                          ? prev.filter((day) => day !== item.value)
+                          : [...prev, item.value]
+                      )
+                    }
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      weekdays.includes(item.value)
+                        ? "bg-slate-900 text-white"
+                        : "bg-white text-slate-600 ring-1 ring-slate-200"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-600">
+                {dictionary.event.repeatWeeks}
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={12}
+                value={weeksCount}
+                onChange={(event) => setWeeksCount(Number(event.target.value))}
+                className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
+              />
+            </div>
+            <div className="rounded-xl bg-white px-4 py-3 text-xs text-slate-600">
+              <p className="font-semibold text-slate-700">
+                {dictionary.event.repeatPreview}
+              </p>
+              <p className="mt-1">{previewDates}</p>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
       <LocationPicker
         value={location}
         radiusMeters={radius}
