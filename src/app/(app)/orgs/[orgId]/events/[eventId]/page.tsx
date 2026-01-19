@@ -132,6 +132,13 @@ export default async function EventDetailPage({
     };
   });
 
+  const attendedMembers = memberAttendance.filter(
+    (entry) => entry.status === "ATTENDED"
+  );
+  const notAttendedMembers = memberAttendance.filter(
+    (entry) => entry.status !== "ATTENDED"
+  );
+
   const windowLabel =
     now < start
       ? dictionary.status.checkinBefore
@@ -227,36 +234,83 @@ export default async function EventDetailPage({
           <h2 className="text-xl font-semibold text-slate-900">
             {dictionary.event.managerAttendance}
           </h2>
-          <div className="mt-4 space-y-3">
-            {memberAttendance.map((entry) => (
-              <div
-                key={entry.user?.id}
-                className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {entry.user?.name ??
-                      entry.user?.email ??
-                      dictionary.dashboard.roleMember}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {entry.checkedInAt
-                      ? `${dictionary.event.checkedAt}: `
-                      : dictionary.event.noCheckin}
-                    {entry.checkedInAt ? (
-                      <DateTimeText value={entry.checkedInAt} />
-                    ) : null}
-                  </p>
-                </div>
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600">
-                  {entry.status === "ATTENDED"
-                    ? dictionary.status.attended
-                    : entry.status === "ABSENT"
-                    ? dictionary.status.absent
-                    : dictionary.status.notAttended}
-                </span>
+          <div className="mt-4 space-y-6">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm font-semibold text-slate-700">
+                <span>{dictionary.event.attendedGroup}</span>
+                <span>{attendedMembers.length}</span>
               </div>
-            ))}
+              {attendedMembers.length === 0 ? (
+                <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-500">
+                  {dictionary.event.noCheckin}
+                </div>
+              ) : (
+                attendedMembers.map((entry) => (
+                  <div
+                    key={entry.user?.id}
+                    className="flex items-center justify-between rounded-2xl bg-emerald-50 px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {entry.user?.name ??
+                          entry.user?.email ??
+                          dictionary.dashboard.roleMember}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {entry.checkedInAt
+                          ? `${dictionary.event.checkedAt}: `
+                          : dictionary.event.noCheckin}
+                        {entry.checkedInAt ? (
+                          <DateTimeText value={entry.checkedInAt} />
+                        ) : null}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700">
+                      {dictionary.status.attended}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm font-semibold text-slate-700">
+                <span>{dictionary.event.notAttendedGroup}</span>
+                <span>{notAttendedMembers.length}</span>
+              </div>
+              {notAttendedMembers.length === 0 ? (
+                <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-500">
+                  {dictionary.status.attended}
+                </div>
+              ) : (
+                notAttendedMembers.map((entry) => (
+                  <div
+                    key={entry.user?.id}
+                    className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {entry.user?.name ??
+                          entry.user?.email ??
+                          dictionary.dashboard.roleMember}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {entry.checkedInAt
+                          ? `${dictionary.event.checkedAt}: `
+                          : dictionary.event.noCheckin}
+                        {entry.checkedInAt ? (
+                          <DateTimeText value={entry.checkedInAt} />
+                        ) : null}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600">
+                      {entry.status === "ABSENT"
+                        ? dictionary.status.absent
+                        : dictionary.status.notAttended}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </section>
       ) : null}

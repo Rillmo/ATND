@@ -122,6 +122,8 @@ export const dictionaries = {
       checkIn: "Check In",
       checkingIn: "Locating...",
       managerAttendance: "Attendance Overview",
+      attendedGroup: "Attended",
+      notAttendedGroup: "Not attended",
       noCheckin: "No check-in yet",
       radiusHint:
         "Drag the circle on the map or use the slider to adjust the radius.",
@@ -310,6 +312,8 @@ export const dictionaries = {
       checkIn: "출석 체크",
       checkingIn: "위치 확인 중...",
       managerAttendance: "출석 현황",
+      attendedGroup: "출석 완료",
+      notAttendedGroup: "미출석",
       noCheckin: "체크인 기록 없음",
       radiusHint:
         "지도 위 원형 오버레이를 직접 드래그해 반경을 조절할 수도 있습니다.",
