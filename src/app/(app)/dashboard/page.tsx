@@ -25,7 +25,7 @@ export default async function DashboardPage() {
     .order("joined_at", { ascending: false });
 
   const orgs = (
-    (data as Array<{
+    (data as unknown as Array<{
       role: "MANAGER" | "MEMBER";
       organizations: {
         id: string;
