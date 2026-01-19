@@ -24,7 +24,19 @@ export default async function DashboardPage() {
     .eq("user_id", session.user.id)
     .order("joined_at", { ascending: false });
 
-  const orgs = (data ?? []).map((row) => ({
+  const orgs = (
+    (data as Array<{
+      role: "MANAGER" | "MEMBER";
+      organizations: {
+        id: string;
+        name: string;
+        description: string | null;
+        image_url: string | null;
+        invite_code: string;
+        manager_user_id: string;
+      } | null;
+    }>) ?? []
+  ).map((row) => ({
     role: row.role,
     organization: row.organizations,
   }));
