@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
 
-type SupabaseAdminClient = ReturnType<typeof createClient<any>>;
+type SupabaseAdminClient = ReturnType<typeof createClient<Database>>;
 
 let cachedClient: SupabaseAdminClient | null = null;
 
@@ -13,7 +14,7 @@ export function getSupabaseAdmin() {
   }
 
   if (!cachedClient) {
-    cachedClient = createClient<any>(supabaseUrl, serviceRoleKey, {
+    cachedClient = createClient<Database>(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
     });
   }

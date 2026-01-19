@@ -1,7 +1,6 @@
 import { getServerSession, type NextAuthOptions } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
-import type { Provider } from "next-auth/providers";
 import { z } from "zod";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { verifyPassword } from "@/lib/passwords";
@@ -11,7 +10,7 @@ const credentialsSchema = z.object({
   password: z.string().min(8),
 });
 
-const providers: Provider[] = [];
+const providers = [];
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   providers.push(

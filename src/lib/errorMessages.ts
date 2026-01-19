@@ -17,12 +17,18 @@ export function getFriendlyErrorMessage(
   const common = dictionary.errors.common;
   const contextErrors = dictionary.errors[context];
 
-  if (contextErrors[status as keyof typeof contextErrors]) {
-    return contextErrors[status as keyof typeof contextErrors] as string;
+  const contextMatch = (contextErrors as Record<string, string | undefined>)[
+    String(status)
+  ];
+  if (contextMatch) {
+    return contextMatch;
   }
 
-  if (common[status as keyof typeof common]) {
-    return common[status as keyof typeof common] as string;
+  const commonMatch = (common as Record<string, string | undefined>)[
+    String(status)
+  ];
+  if (commonMatch) {
+    return commonMatch;
   }
 
   return contextErrors.default ?? common[500];
