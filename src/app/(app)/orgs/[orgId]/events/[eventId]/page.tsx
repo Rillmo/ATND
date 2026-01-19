@@ -45,14 +45,27 @@ export default async function EventDetailPage({
     redirect(`/orgs/${orgId}`);
   }
 
-  const { data: event } = await supabase
+  const { data: event } = (await supabase
     .from("events")
     .select(
       "id, title, event_date, attendance_start_at, attendance_end_at, radius_meters, location_name, location_address, latitude, longitude"
     )
     .eq("org_id", orgId)
     .eq("id", eventId)
-    .single();
+    .single()) as {
+    data: {
+      id: string;
+      title: string;
+      event_date: string;
+      attendance_start_at: string;
+      attendance_end_at: string;
+      radius_meters: number;
+      location_name: string | null;
+      location_address: string | null;
+      latitude: number;
+      longitude: number;
+    } | null;
+  };
 
   if (!event) {
     redirect(`/orgs/${orgId}`);
