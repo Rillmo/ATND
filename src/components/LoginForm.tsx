@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { Route } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useI18n } from "@/components/LocaleProvider";
@@ -43,6 +45,8 @@ export default function LoginForm() {
       cancelled = true;
     };
   }, []);
+
+  const resetHref = "/reset" as unknown as Route;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -121,6 +125,14 @@ export default function LoginForm() {
           >
             {dictionary.auth.passwordRequirement}
           </p>
+          <div className="mt-2">
+            <Link
+              href={resetHref}
+              className="text-xs font-semibold text-slate-700 underline"
+            >
+              {dictionary.auth.forgotPassword}
+            </Link>
+          </div>
         </div>
         {error ? <p className="text-sm text-rose-600">{error}</p> : null}
         <button

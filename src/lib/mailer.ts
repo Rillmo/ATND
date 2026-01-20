@@ -47,3 +47,22 @@ export async function sendVerificationEmail(params: {
     html: `<p>Your verification code is:</p><p><strong>${params.code}</strong></p>`,
   });
 }
+
+export async function sendPasswordResetEmail(params: {
+  to: string;
+  code: string;
+}) {
+  const from = process.env.EMAIL_FROM;
+  if (!from) {
+    throw new Error("EMAIL_FROM is not set");
+  }
+
+  const transporter = getTransporter();
+  await transporter.sendMail({
+    from,
+    to: params.to,
+    subject: "Reset your password",
+    text: `Your password reset code is ${params.code}`,
+    html: `<p>Your password reset code is:</p><p><strong>${params.code}</strong></p>`,
+  });
+}

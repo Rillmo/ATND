@@ -87,6 +87,33 @@ export type Database = {
     };
     Relationships: [];
   };
+  password_reset_tokens: {
+    Row: {
+      id: string;
+      email: string;
+      token_hash: string;
+      expires_at: string;
+      consumed_at: string | null;
+      created_at: string;
+    };
+    Insert: {
+      id?: string;
+      email: string;
+      token_hash: string;
+      expires_at: string;
+      consumed_at?: string | null;
+      created_at?: string;
+    };
+    Update: {
+      id?: string;
+      email?: string;
+      token_hash?: string;
+      expires_at?: string;
+      consumed_at?: string | null;
+      created_at?: string;
+    };
+    Relationships: [];
+  };
       organizations: {
         Row: {
           id: string;
