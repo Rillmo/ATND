@@ -30,7 +30,12 @@ export default function EventEditForm({
   const [startAt, setStartAt] = useState(initialEvent.attendance_start_at.slice(0, 16));
   const [endAt, setEndAt] = useState(initialEvent.attendance_end_at.slice(0, 16));
   const [radius, setRadius] = useState(initialEvent.radius_meters);
-  const [location, setLocation] = useState({
+  const [location, setLocation] = useState<{
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+  } | null>({
     name: initialEvent.location_name ?? "",
     address: initialEvent.location_address ?? "",
     latitude: initialEvent.latitude,
@@ -43,6 +48,12 @@ export default function EventEditForm({
     event.preventDefault();
     setError(null);
     setLoading(true);
+
+    if (!location) {
+      setError(dictionary.event.locationEmpty);
+      setLoading(false);
+      return;
+    }
 
     const response = await fetch(`/api/orgs/${orgId}/events/${eventId}`, {
       method: "PATCH",

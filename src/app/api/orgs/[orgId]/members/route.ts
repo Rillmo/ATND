@@ -25,10 +25,23 @@ export async function GET(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { data: members, error } = await supabase
+  const { data: members, error } = (await supabase
     .from("organization_members")
     .select("role, users ( id, name, email, image_url )")
-    .eq("org_id", orgId);
+    .eq("org_id", orgId)) as {
+    data:
+      | Array<{
+          role: "MANAGER" | "MEMBER";
+          users: {
+            id: string;
+            name: string | null;
+            email: string | null;
+            image_url: string | null;
+          } | null;
+        }>
+      | null;
+    error: { message: string } | null;
+  };
 
   if (error) {
     return NextResponse.json({ error: "Failed to load members" }, { status: 500 });

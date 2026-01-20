@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getAuthSession } from "@/auth";
 import SignOutButton from "@/components/SignOutButton";
@@ -35,10 +36,11 @@ export default async function NavBar() {
                 aria-label={dictionary.nav.settings}
                 title={dictionary.nav.settings}
               >
-                <img
+                <Image
                   src="/setting.png"
                   alt=""
-                  className="h-5 w-5"
+                  width={20}
+                  height={20}
                 />
               </Link>
               <SignOutButton label={dictionary.nav.logout} />

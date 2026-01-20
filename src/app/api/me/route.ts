@@ -20,12 +20,16 @@ export async function GET() {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { data: orgs } = await supabase
+  const { data: orgs } = (await supabase
     .from("organization_members")
     .select("organizations ( id, name )")
-    .eq("user_id", session.user.id);
+    .eq("user_id", session.user.id)) as {
+    data: Array<{ organizations: { id: string; name: string } | null }> | null;
+  };
 
-  const organizations = (orgs ?? []).map((row) => row.organizations);
+  const organizations = (orgs ?? [])
+    .map((row) => row.organizations)
+    .filter((org): org is { id: string; name: string } => Boolean(org));
 
   return NextResponse.json({
     user,

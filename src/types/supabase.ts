@@ -190,12 +190,12 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: {};
-    Functions: {};
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
     Enums: {
       member_role: "MANAGER" | "MEMBER";
       attendance_status: "NOT_ATTENDED" | "ATTENDED" | "ABSENT";
     };
-    CompositeTypes: {};
+    CompositeTypes: Record<string, never>;
   };
 };

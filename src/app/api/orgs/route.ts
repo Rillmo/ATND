@@ -12,12 +12,28 @@ export async function GET() {
     }
 
     const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
+    const { data, error } = (await supabase
       .from("organization_members")
       .select(
         "role, organizations ( id, name, description, image_url, invite_code, manager_user_id, created_at )"
       )
-      .eq("user_id", session.user.id);
+      .eq("user_id", session.user.id)) as {
+      data:
+        | Array<{
+            role: "MANAGER" | "MEMBER";
+            organizations: {
+              id: string;
+              name: string;
+              description: string | null;
+              image_url: string | null;
+              invite_code: string;
+              manager_user_id: string;
+              created_at: string;
+            } | null;
+          }>
+        | null;
+      error: { message: string } | null;
+    };
 
     if (error) {
       console.error("orgs.get.error", error);

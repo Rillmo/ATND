@@ -56,23 +56,20 @@ export default function EventLocationMap({
   address,
   labels,
 }: EventLocationMapProps) {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapRef = useRef<HTMLDivElement | null>(null);
   const markerRef = useRef<google.maps.Marker | null>(null);
   const circleRef = useRef<google.maps.Circle | null>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
-    "idle"
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    apiKey ? "loading" : "error"
   );
 
   useEffect(() => {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-      setStatus("error");
       return;
     }
-
     let cancelled = false;
-    setStatus("loading");
 
     loadGoogleMaps(apiKey)
       .then(() => {
@@ -115,7 +112,7 @@ export default function EventLocationMap({
     return () => {
       cancelled = true;
     };
-  }, [latitude, longitude, radiusMeters, title]);
+  }, [apiKey, latitude, longitude, radiusMeters, title]);
 
   useEffect(() => {
     if (!mapInstanceRef.current) return;

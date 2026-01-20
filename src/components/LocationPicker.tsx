@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/LocaleProvider";
 
 const MAPS_SCRIPT_ID = "google-maps-script";
@@ -62,55 +62,62 @@ export default function LocationPicker({
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.Marker | null>(null);
   const circleRef = useRef<google.maps.Circle | null>(null);
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const safeRadius =
     Number.isFinite(radiusMeters) && radiusMeters > 0 ? radiusMeters : 100;
-  const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
-    "idle"
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    apiKey ? "loading" : "error"
   );
   const [message, setMessage] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
 
-  const updateLocation = (nextValue: LocationValue) => {
-    setMessage(null);
-    onChange(nextValue);
+  const updateLocation = useCallback(
+    (nextValue: LocationValue) => {
+      setMessage(null);
+      onChange(nextValue);
 
-    if (mapInstanceRef.current && markerRef.current) {
-      const position = new google.maps.LatLng(
-        nextValue.latitude,
-        nextValue.longitude
-      );
-      mapInstanceRef.current.panTo(position);
-      mapInstanceRef.current.setZoom(15);
-      markerRef.current.setPosition(position);
-      circleRef.current?.setCenter(position);
-    }
-  };
-
-  const reverseGeocode = (lat: number, lng: number) => {
-    return new Promise<{
-      address: string;
-      name: string;
-    }>((resolve, reject) => {
-      if (!window.google?.maps) {
-        reject(new Error("Maps not ready"));
-        return;
+      if (mapInstanceRef.current && markerRef.current) {
+        const position = new google.maps.LatLng(
+          nextValue.latitude,
+          nextValue.longitude
+        );
+        mapInstanceRef.current.panTo(position);
+        mapInstanceRef.current.setZoom(15);
+        markerRef.current.setPosition(position);
+        circleRef.current?.setCenter(position);
       }
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-        if (status !== "OK" || !results?.[0]) {
-          reject(new Error("Geocode failed"));
+    },
+    [onChange]
+  );
+
+  const reverseGeocode = useCallback(
+    (lat: number, lng: number) => {
+      return new Promise<{
+        address: string;
+        name: string;
+      }>((resolve, reject) => {
+        if (!window.google?.maps) {
+          reject(new Error("Maps not ready"));
           return;
         }
-        const top = results[0];
-        resolve({
-          address: top.formatted_address,
-          name:
-            top.address_components?.[0]?.long_name ??
-            dictionary.event.currentLocation,
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+          if (status !== "OK" || !results?.[0]) {
+            reject(new Error("Geocode failed"));
+            return;
+          }
+          const top = results[0];
+          resolve({
+            address: top.formatted_address,
+            name:
+              top.address_components?.[0]?.long_name ??
+              dictionary.event.currentLocation,
+          });
         });
       });
-    });
-  };
+    },
+    [dictionary.event.currentLocation]
+  );
 
   const handleUseMyLocation = async () => {
     if (!navigator.geolocation) {
@@ -154,16 +161,12 @@ export default function LocationPicker({
   };
 
   useEffect(() => {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-      setStatus("error");
-      setMessage(dictionary.event.mapError);
       return;
     }
 
     let cancelled = false;
 
-    setStatus("loading");
     loadGoogleMaps(apiKey)
       .then(() => {
         if (cancelled) return;
@@ -243,13 +246,19 @@ export default function LocationPicker({
       .catch(() => {
         if (cancelled) return;
         setStatus("error");
-        setMessage(dictionary.event.mapError);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [onChange, value]);
+  }, [
+    apiKey,
+    dictionary.event.locationFailed,
+    onRadiusChange,
+    safeRadius,
+    updateLocation,
+    value,
+  ]);
 
   useEffect(() => {
     if (!value || !mapInstanceRef.current || !markerRef.current) {

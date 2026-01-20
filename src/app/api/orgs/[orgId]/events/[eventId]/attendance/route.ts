@@ -36,19 +36,41 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { data: members, error: memberError } = await supabase
+  const { data: members, error: memberError } = (await supabase
     .from("organization_members")
     .select("user_id, role, users ( id, name, email, image_url )")
-    .eq("org_id", orgId);
+    .eq("org_id", orgId)) as {
+    data:
+      | Array<{
+          user_id: string;
+          role: "MANAGER" | "MEMBER";
+          users: {
+            id: string;
+            name: string | null;
+            email: string | null;
+            image_url: string | null;
+          } | null;
+        }>
+      | null;
+    error: { message: string } | null;
+  };
 
   if (memberError) {
     return NextResponse.json({ error: "Failed to load members" }, { status: 500 });
   }
 
-  const { data: attendance } = await supabase
+  const { data: attendance } = (await supabase
     .from("attendances")
     .select("user_id, status, checked_in_at")
-    .eq("event_id", eventId);
+    .eq("event_id", eventId)) as {
+    data:
+      | Array<{
+          user_id: string;
+          status: "NOT_ATTENDED" | "ATTENDED" | "ABSENT";
+          checked_in_at: string | null;
+        }>
+      | null;
+  };
 
   const attendanceByUser = new Map(
     (attendance ?? []).map((entry) => [entry.user_id, entry])
