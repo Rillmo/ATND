@@ -11,13 +11,19 @@ const credentialsSchema = z.object({
   password: passwordSchema,
 });
 
-const providers = [];
+const providers: NextAuthOptions["providers"] = [];
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   providers.push(
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "select_account",
+          access_type: "online",
+        },
+      },
     })
   );
 }
@@ -94,10 +100,27 @@ export const authOptions: NextAuthOptions = {
   },
   providers,
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       try {
-        if (account?.provider !== "google" || !user.email) {
+        if (account?.provider !== "google") {
           return true;
+        }
+
+        if (!user.email) {
+          console.error("[auth:signIn] google user missing email");
+          return false;
+        }
+
+        const isEmailVerified =
+          typeof profile?.email_verified === "boolean"
+            ? profile.email_verified
+            : true;
+
+        if (!isEmailVerified) {
+          console.error("[auth:signIn] google email not verified", {
+            email: user.email,
+          });
+          return false;
         }
 
         const supabase = getSupabaseAdmin();

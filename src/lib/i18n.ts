@@ -209,9 +209,15 @@ export const dictionaries = {
     settings: {
       title: "Settings",
       subtitle: "Manage your profile and account settings.",
+      profileSection: "Profile",
+      profileSubtitle: "Update your display name.",
       accountSection: "Account",
       nameLabel: "Name",
       emailLabel: "Email",
+      saveButton: "Save changes",
+      saving: "Saving...",
+      saveSuccess: "Profile updated.",
+      saveError: "Failed to update profile.",
       deleteTitle: "Delete account",
       deleteDescription:
         "This removes your account and membership history. It cannot be undone.",
@@ -420,9 +426,15 @@ export const dictionaries = {
     settings: {
       title: "설정",
       subtitle: "계정 및 개인정보 설정을 관리하세요.",
+      profileSection: "프로필",
+      profileSubtitle: "이름을 수정하세요.",
       accountSection: "계정",
       nameLabel: "이름",
       emailLabel: "이메일",
+      saveButton: "변경 저장",
+      saving: "저장 중...",
+      saveSuccess: "프로필이 업데이트되었습니다.",
+      saveError: "프로필 업데이트에 실패했습니다.",
       deleteTitle: "회원탈퇴",
       deleteDescription: "계정을 삭제하면 복구할 수 없습니다.",
       deleteWarning:

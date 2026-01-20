@@ -25,10 +25,6 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (token.needsConsent && req.nextUrl.pathname !== "/consent") {
-    return NextResponse.redirect(new URL("/consent", req.url));
-  }
-
   return NextResponse.next();
 }
 

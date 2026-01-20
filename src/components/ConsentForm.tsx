@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/components/LocaleProvider";
 
-export default function ConsentForm() {
+export default function ConsentForm({ callbackUrl }: { callbackUrl: string }) {
   const { dictionary } = useI18n();
   const [terms, setTerms] = useState(false);
   const [privacy, setPrivacy] = useState(false);
@@ -33,7 +33,9 @@ export default function ConsentForm() {
       return;
     }
 
-    window.location.href = "/dashboard";
+    const target =
+      callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
+    window.location.href = target;
   };
 
   return (

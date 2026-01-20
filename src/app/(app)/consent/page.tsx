@@ -5,7 +5,24 @@ import ConsentForm from "@/components/ConsentForm";
 import { getDictionary } from "@/lib/i18n";
 import { getLocaleFromCookie } from "@/lib/i18n-server";
 
-export default async function ConsentPage() {
+function resolveCallbackUrl(raw?: string | string[] | null) {
+  if (Array.isArray(raw)) {
+    raw = raw[0];
+  }
+  if (typeof raw === "string" && raw.startsWith("/")) {
+    return raw;
+  }
+  return "/dashboard";
+}
+
+export default async function ConsentPage({
+  searchParams,
+}: {
+  searchParams:
+    | { callbackUrl?: string }
+    | Promise<{ callbackUrl?: string | string[] | null }>;
+}) {
+  const resolvedParams = await searchParams;
   const session = await getAuthSession();
   if (!session?.user?.id) {
     redirect("/login");
@@ -14,6 +31,7 @@ export default async function ConsentPage() {
   const locale = await getLocaleFromCookie();
   const dictionary = getDictionary(locale);
   const supabase = getSupabaseAdmin();
+  const callbackUrl = resolveCallbackUrl(resolvedParams?.callbackUrl ?? null);
 
   const { data: user } = (await supabase
     .from("users")
@@ -23,9 +41,9 @@ export default async function ConsentPage() {
     data: { privacy_accepted_at: string | null; terms_accepted_at: string | null } | null;
   };
 
-  if (user?.privacy_accepted_at && user?.terms_accepted_at) {
-    redirect("/dashboard");
-  }
+  const hasConsent = Boolean(
+    user?.privacy_accepted_at && user?.terms_accepted_at
+  );
 
   return (
     <div className="mx-auto max-w-md space-y-4 rounded-3xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200/70 sm:p-8">
@@ -35,7 +53,19 @@ export default async function ConsentPage() {
       <p className="text-sm text-slate-600">
         {dictionary.auth.consentSubtitle}
       </p>
-      <ConsentForm />
+      {hasConsent ? (
+        <div className="space-y-4 text-sm text-slate-700">
+          <p>{dictionary.auth.consentContinue}</p>
+          <a
+            href={callbackUrl}
+            className="block rounded-full bg-slate-900 px-4 py-2 text-center font-semibold text-white hover:bg-slate-800"
+          >
+            {dictionary.auth.consentContinue}
+          </a>
+        </div>
+      ) : (
+        <ConsentForm callbackUrl={callbackUrl} />
+      )}
     </div>
   );
 }

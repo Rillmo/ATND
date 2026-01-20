@@ -3,6 +3,7 @@ import { getAuthSession } from "@/auth";
 import { getDictionary } from "@/lib/i18n";
 import { getLocaleFromCookie } from "@/lib/i18n-server";
 import DeleteAccountForm from "@/components/DeleteAccountForm";
+import ProfileForm from "@/components/ProfileForm";
 
 export default async function SettingsPage() {
   const session = await getAuthSession();
@@ -26,21 +27,13 @@ export default async function SettingsPage() {
 
       <section className="rounded-3xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200/70 sm:p-8">
         <h2 className="text-lg font-semibold text-slate-900">
-          {dictionary.settings.accountSection}
+          {dictionary.settings.profileSection}
         </h2>
-        <div className="mt-4 space-y-3 text-sm text-slate-600">
-          <p>
-            <span className="font-semibold text-slate-800">
-              {dictionary.settings.nameLabel}:
-            </span>{" "}
-            {session.user.name ?? "-"}
-          </p>
-          <p>
-            <span className="font-semibold text-slate-800">
-              {dictionary.settings.emailLabel}:
-            </span>{" "}
-            {session.user.email ?? "-"}
-          </p>
+        <p className="mt-2 text-sm text-slate-600">
+          {dictionary.settings.profileSubtitle}
+        </p>
+        <div className="mt-6">
+          <ProfileForm />
         </div>
       </section>
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { useI18n } from "@/components/LocaleProvider";
@@ -16,6 +17,35 @@ export default function SignupForm() {
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(false);
+  const searchParams = useSearchParams();
+  const callbackUrl = useMemo(
+    () => {
+      const url = searchParams.get("callbackUrl");
+      return url && url.startsWith("/") ? url : "/dashboard";
+    },
+    [searchParams]
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/providers")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) {
+          setGoogleEnabled(Boolean(data?.google));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setGoogleEnabled(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -44,7 +74,7 @@ export default function SignupForm() {
       email,
       password,
       redirect: false,
-      callbackUrl: "/dashboard",
+      callbackUrl,
     });
 
     if (result?.error) {
@@ -154,19 +184,21 @@ export default function SignupForm() {
         <span className="h-px flex-1 bg-slate-200" />
       </div>
 
-      <button
-        className="flex h-10 w-full items-center justify-start gap-[10px] rounded-full border border-[#747775] bg-white px-3 text-[14px] font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] font-[var(--font-google)]"
-        onClick={() => signIn("google", { callbackUrl: "/consent" })}
-      >
-        <Image
-          src="/google-g-logo.png"
-          alt=""
-          width={18}
-          height={18}
-          aria-hidden="true"
-        />
-        {dictionary.auth.googleLogin}
-      </button>
+      {googleEnabled ? (
+        <button
+          className="flex h-10 w-full items-center justify-start gap-[10px] rounded-full border border-[#747775] bg-white px-3 text-[14px] font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] font-[var(--font-google)]"
+          onClick={() => signIn("google", { callbackUrl })}
+        >
+          <Image
+            src="/google-g-logo.png"
+            alt=""
+            width={18}
+            height={18}
+            aria-hidden="true"
+          />
+          {dictionary.auth.googleLogin}
+        </button>
+      ) : null}
     </div>
   );
 }
