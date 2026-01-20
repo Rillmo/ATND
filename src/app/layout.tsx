@@ -32,8 +32,6 @@ export const metadata: Metadata = {
   description: "Web-based attendance management for organizations.",
 };
 
-export const dynamic = "force-dynamic";
-
 export default async function RootLayout({
   children,
 }: Readonly<{

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useI18n } from "@/components/LocaleProvider";
@@ -10,19 +10,14 @@ type Status = "idle" | "loading" | "success" | "error";
 export default function VerifyPage() {
   const { dictionary } = useI18n();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(
+    () => searchParams.get("email") ?? ""
+  );
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [verificationId, setVerificationId] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
-
-  useEffect(() => {
-    const initialEmail = searchParams.get("email");
-    if (initialEmail) {
-      setEmail(initialEmail);
-    }
-  }, [searchParams]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

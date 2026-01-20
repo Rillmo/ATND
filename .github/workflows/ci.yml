@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: test_secret
+      GOOGLE_CLIENT_ID: test_google_client_id
+      GOOGLE_CLIENT_SECRET: test_google_client_secret
+      SUPABASE_URL: https://example.supabase.co
+      SUPABASE_ANON_KEY: test_supabase_anon_key
+      SUPABASE_SERVICE_ROLE_KEY: test_supabase_service_role_key
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: test_maps_key
+      NEXT_PUBLIC_BMC_URL: https://example.com
+      SMTP_HOST: localhost
+      SMTP_PORT: 1025
+      SMTP_USER: user
+      SMTP_PASS: pass
+      SMTP_SECURE: "false"
+      EMAIL_FROM: "ATND <dev@example.com>"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
