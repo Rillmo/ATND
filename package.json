@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/postbuild.js",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -34,6 +35,6 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=20"
+    "node": "20.x"
   }
 }
