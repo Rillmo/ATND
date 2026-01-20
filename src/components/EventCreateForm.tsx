@@ -90,7 +90,24 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
     });
 
     if (!response.ok) {
-      setError(getFriendlyErrorMessage(response.status, "eventCreate", locale));
+      const data = await response.json().catch(() => null);
+      const reason = data?.error as string | undefined;
+      const reasonMap: Record<string, string> = {
+        "Invalid input": dictionary.event.errorInvalidInput,
+        "Invalid recurrence": dictionary.event.errorInvalidRecurrence,
+        "Invalid date": dictionary.event.errorInvalidDate,
+        "Invalid time": dictionary.event.errorInvalidTime,
+        "Start time must be in the future":
+          dictionary.event.errorStartInFuture,
+        "End time must be after start": dictionary.event.errorEndAfterStart,
+        "No events generated": dictionary.event.errorNoEvents,
+        "Failed to create events": dictionary.event.errorCreateFailed,
+        "Failed to create event": dictionary.event.errorCreateFailed,
+      };
+      setError(
+        (reason ? reasonMap[reason] : undefined) ??
+          getFriendlyErrorMessage(response.status, "eventCreate", locale)
+      );
       setLoading(false);
       return;
     }

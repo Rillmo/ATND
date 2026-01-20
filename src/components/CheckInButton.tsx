@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { useI18n } from "@/components/LocaleProvider";
 
@@ -16,6 +16,11 @@ export default function CheckInButton({
   const { dictionary, locale } = useI18n();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [checked, setChecked] = useState(checkedIn);
+
+  useEffect(() => {
+    setChecked(checkedIn);
+  }, [checkedIn]);
 
   const handleCheckIn = () => {
     setLoading(true);
@@ -47,6 +52,7 @@ export default function CheckInButton({
           );
         } else {
           setMessage(dictionary.event.checkinSuccess);
+          setChecked(true);
         }
         setLoading(false);
       },
@@ -61,14 +67,14 @@ export default function CheckInButton({
     <div className="space-y-2">
       <button
         onClick={handleCheckIn}
-        disabled={loading || checkedIn}
+        disabled={loading || checked}
         className={`rounded-full px-5 py-2 text-sm font-semibold text-white transition ${
-          checkedIn
+          checked
             ? "bg-slate-400"
             : "bg-teal-600 hover:bg-teal-700 disabled:opacity-70"
         }`}
       >
-        {checkedIn
+        {checked
           ? dictionary.event.checkinSuccess
           : loading
           ? dictionary.event.checkingIn
