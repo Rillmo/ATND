@@ -30,6 +30,9 @@ const google = Roboto({
 export const metadata: Metadata = {
   title: "ATND · Attendance",
   description: "Web-based attendance management for organizations.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default async function RootLayout({
