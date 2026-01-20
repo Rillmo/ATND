@@ -75,6 +75,7 @@ export default function SignupForm() {
             value={name}
             onChange={(event) => setName(event.target.value)}
             className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
+            pattern="^[A-Za-z가-힣0-9]+(?:[ _-]?[A-Za-z가-힣0-9]+)*$"
             required
           />
         </div>
@@ -100,6 +101,8 @@ export default function SignupForm() {
             onChange={(event) => setPassword(event.target.value)}
             className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
             minLength={8}
+            maxLength={64}
+            pattern="^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9])\\S+$"
             required
           />
         </div>

@@ -59,13 +59,16 @@ export default function LoginForm() {
           <label className="text-sm font-semibold text-slate-700">
             {dictionary.auth.password}
           </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
-            required
-          />
+        <input
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
+          minLength={8}
+          maxLength={64}
+          pattern="^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9])\\S+$"
+          required
+        />
         </div>
         {error ? <p className="text-sm text-rose-600">{error}</p> : null}
         <button

@@ -4,10 +4,11 @@ import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { verifyPassword } from "@/lib/passwords";
+import { passwordSchema } from "@/lib/validation";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: passwordSchema,
 });
 
 const providers = [];

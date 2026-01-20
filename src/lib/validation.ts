@@ -1,9 +1,24 @@
 import { z } from "zod";
 
+const nameSchema = z
+  .string()
+  .trim()
+  .min(2)
+  .max(50)
+  .regex(/^[A-Za-z가-힣0-9]+(?:[ _-]?[A-Za-z가-힣0-9]+)*$/);
+
+const passwordSchema = z
+  .string()
+  .min(8)
+  .max(64)
+  .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S+$/);
+
+export { nameSchema, passwordSchema };
+
 export const registerSchema = z.object({
-  name: z.string().min(2).max(50),
+  name: nameSchema,
   email: z.string().email(),
-  password: z.string().min(8).max(100),
+  password: passwordSchema,
   termsAccepted: z.boolean(),
   privacyAccepted: z.boolean(),
 });
@@ -42,7 +57,7 @@ export const recurrenceSchema = z.object({
 });
 
 export const profileUpdateSchema = z.object({
-  name: z.string().min(2).max(50).optional(),
+  name: nameSchema.optional(),
   imageUrl: z.string().url().optional().nullable(),
 });
 
