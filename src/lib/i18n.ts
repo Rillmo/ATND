@@ -266,7 +266,7 @@ export const dictionaries = {
       password: "비밀번호",
       loginButton: "이메일로 로그인",
       signupButton: "이메일로 가입",
-      googleLogin: "Google로 계속",
+      googleLogin: "Google 계정으로 계속",
       divider: "또는",
       loggingIn: "로그인 중...",
       signingUp: "가입 중...",

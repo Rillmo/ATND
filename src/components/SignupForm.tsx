@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { useI18n } from "@/components/LocaleProvider";
@@ -151,9 +152,16 @@ export default function SignupForm() {
       </div>
 
       <button
-        className="w-full rounded-full border border-slate-300 py-3 text-sm font-semibold text-slate-700 hover:border-slate-400"
+        className="flex h-10 w-full items-center justify-start gap-[10px] rounded-full border border-[#747775] bg-white px-3 text-[14px] font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] font-[var(--font-google)]"
         onClick={() => signIn("google", { callbackUrl: "/consent" })}
       >
+        <Image
+          src="/google-g-logo.png"
+          alt=""
+          width={18}
+          height={18}
+          aria-hidden="true"
+        />
         {dictionary.auth.googleLogin}
       </button>
     </div>

@@ -148,7 +148,8 @@ export const authOptions: NextAuthOptions = {
           | undefined;
         const shouldLookupUser =
           Boolean(account?.provider && token.email) ||
-          (!token.userId && token.email);
+          (!token.userId && token.email) ||
+          token.needsConsent === true;
 
         if (shouldLookupUser && token.email) {
           const supabase = getSupabaseAdmin();

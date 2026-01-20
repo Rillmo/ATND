@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
+import { IBM_Plex_Sans, Roboto, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Providers from "@/app/providers";
 import NavBar from "@/components/NavBar";
@@ -21,6 +21,12 @@ const body = IBM_Plex_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
+const google = Roboto({
+  variable: "--font-google",
+  subsets: ["latin"],
+  weight: ["500"],
+});
+
 export const metadata: Metadata = {
   title: "ATND · Attendance",
   description: "Web-based attendance management for organizations.",
@@ -37,7 +43,10 @@ export default async function RootLayout({
   const dictionary = getDictionary(locale);
 
   return (
-    <html lang={locale} className={`${display.variable} ${body.variable}`}>
+    <html
+      lang={locale}
+      className={`${display.variable} ${body.variable} ${google.variable}`}
+    >
       <body className="min-h-screen bg-slate-50 text-slate-900">
         <Providers>
           <LocaleProvider locale={locale} dictionary={dictionary}>
