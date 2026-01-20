@@ -16,11 +16,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Consent required" }, { status: 400 });
   }
 
+  if (typeof body?.verificationId !== "string") {
+    return NextResponse.json({ error: "Verification required" }, { status: 400 });
+  }
+
   const supabase = getSupabaseAdmin();
+  const email = parsed.data.email.toLowerCase();
   const { data: existing } = await supabase
     .from("users")
-    .select("id")
-    .eq("email", parsed.data.email)
+    .select("id, email_verified_at")
+    .eq("email", email)
     .single();
 
   if (existing) {
@@ -30,16 +35,35 @@ export async function POST(request: Request) {
     );
   }
 
+  const { data: verification } = await supabase
+    .from("email_verification_tokens")
+    .select("id, email, expires_at, consumed_at")
+    .eq("id", body.verificationId)
+    .single();
+
+  if (
+    !verification ||
+    verification.email !== email ||
+    !verification.consumed_at ||
+    new Date(verification.expires_at).getTime() < Date.now()
+  ) {
+    return NextResponse.json(
+      { error: "Verification required" },
+      { status: 400 }
+    );
+  }
+
   const passwordHash = await hashPassword(parsed.data.password);
 
   const { data: user, error: userError } = await supabase
     .from("users")
     .insert({
       name: parsed.data.name,
-      email: parsed.data.email,
+      email,
       image_url: null,
       terms_accepted_at: new Date().toISOString(),
       privacy_accepted_at: new Date().toISOString(),
+      email_verified_at: new Date().toISOString(),
     })
     .select("id")
     .single();

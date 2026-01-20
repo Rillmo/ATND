@@ -27,16 +27,41 @@ export async function DELETE() {
 
   const { data: createdEvents, error: eventsError } = await supabase
     .from("events")
-    .select("id")
-    .eq("created_by", userId)
-    .limit(1);
+    .select("id, org_id, organizations(manager_user_id)")
+    .eq("created_by", userId);
 
   if (eventsError) {
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 
   if (createdEvents && createdEvents.length > 0) {
-    return NextResponse.json({ error: "Events" }, { status: 409 });
+    const typedEvents = createdEvents as Array<{
+      id: string;
+      organizations: { manager_user_id: string | null } | null;
+    }>;
+
+    const updates = typedEvents
+      .map((event) => ({
+        id: event.id,
+        managerUserId: event.organizations?.manager_user_id ?? null,
+      }))
+      .filter((event) => Boolean(event.managerUserId));
+
+    if (updates.length !== typedEvents.length) {
+      return NextResponse.json({ error: "Events" }, { status: 409 });
+    }
+
+    for (const entry of updates) {
+      const { error: updateError } = await supabase
+        .from("events")
+        .update({ created_by: entry.managerUserId })
+        .eq("id", entry.id)
+        .eq("created_by", userId);
+
+      if (updateError) {
+        return NextResponse.json({ error: "Events" }, { status: 409 });
+      }
+    }
   }
 
   const { error: deleteError } = await supabase

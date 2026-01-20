@@ -51,7 +51,12 @@ export const dictionaries = {
       signupSubtitle: "Create an account to start or join an organization.",
       name: "Name",
       email: "Email",
+      emailInvalid: "Enter a valid email address (e.g., name@example.com).",
       password: "Password",
+      passwordRequirement:
+        "8-64 characters with at least 1 letter, 1 number, 1 symbol, and no spaces.",
+      passwordInvalid:
+        "Password must be 8-64 chars and include a letter, number, symbol, with no spaces.",
       loginButton: "Log In with Email",
       signupButton: "Create Account",
       googleLogin: "Continue with Google",
@@ -60,6 +65,7 @@ export const dictionaries = {
       signingUp: "Creating account...",
       invalidCredentials: "Email or password is incorrect.",
       loginFailed: "Login failed. Please try again from the login page.",
+      verificationEmailSent: "Verification email has been sent. Check your inbox.",
       termsAgree: "I agree to the",
       privacyAgree: "I agree to the",
       termsLabel: "Terms",
@@ -68,6 +74,23 @@ export const dictionaries = {
       consentSubtitle:
         "Please review and accept the terms and privacy policy to continue.",
       consentContinue: "Continue",
+      verificationTitle: "Verify your email",
+      verificationDescription:
+        "Enter the 6-digit code we sent to your email to finish signup.",
+      verificationChecking: "Verifying code...",
+      verificationSuccess: "Email verified. You can now sign in.",
+      verificationFailed: "Verification failed or token expired.",
+      verificationMissing: "Verification token is missing.",
+      verificationDataMissing:
+        "Signup data is missing. Please restart the signup flow.",
+      verificationDataMismatch:
+        "Signup email does not match. Please restart the signup flow.",
+      verificationCodeLabel: "Verification code",
+      verificationCodeHint: "Enter the 6-digit code from your email.",
+      verificationCodeInvalid: "Enter the 6-digit verification code.",
+      verifyButton: "Verify",
+      completeButton: "Complete",
+      backToLogin: "Back to login",
     },
     dashboard: {
       greeting: "Welcome",
@@ -269,7 +292,12 @@ export const dictionaries = {
       signupSubtitle: "이메일 가입 후 바로 조직을 만들거나 초대 코드를 입력하세요.",
       name: "이름",
       email: "이메일",
+      emailInvalid: "유효한 이메일 주소를 입력하세요. (예: name@example.com)",
       password: "비밀번호",
+      passwordRequirement:
+        "8~64자, 영문/숫자/특수문자 각 1자 이상 포함, 공백 없이 입력하세요.",
+      passwordInvalid:
+        "비밀번호는 8~64자이고, 영문/숫자/특수문자를 각각 1개 이상 포함해야 하며 공백은 허용되지 않습니다.",
       loginButton: "이메일로 로그인",
       signupButton: "이메일로 가입",
       googleLogin: "Google 계정으로 계속",
@@ -278,6 +306,7 @@ export const dictionaries = {
       signingUp: "가입 중...",
       invalidCredentials: "이메일 또는 비밀번호가 올바르지 않습니다.",
       loginFailed: "로그인에 실패했습니다. 로그인 화면에서 다시 시도하세요.",
+      verificationEmailSent: "인증 메일을 보냈습니다. 메일함을 확인하세요.",
       termsAgree: "다음에 동의합니다:",
       privacyAgree: "다음에 동의합니다:",
       termsLabel: "이용약관",
@@ -286,6 +315,24 @@ export const dictionaries = {
       consentSubtitle:
         "서비스 이용을 위해 이용약관과 개인정보처리방침에 동의해주세요.",
       consentContinue: "계속",
+      verificationTitle: "이메일 인증",
+      verificationDescription:
+        "회원가입을 완료하려면 이메일로 발송된 6자리 코드를 입력하세요.",
+      verificationChecking: "인증 코드를 확인하는 중입니다...",
+      verificationSuccess:
+        "이메일 인증이 완료되었습니다. 이제 로그인할 수 있습니다.",
+      verificationFailed: "인증에 실패했거나 토큰이 만료되었습니다.",
+      verificationMissing: "인증 토큰이 없습니다.",
+      verificationDataMissing:
+        "회원가입 정보가 없습니다. 가입을 다시 진행해 주세요.",
+      verificationDataMismatch:
+        "회원가입 이메일이 일치하지 않습니다. 가입을 다시 진행해 주세요.",
+      verificationCodeLabel: "인증 코드",
+      verificationCodeHint: "이메일로 받은 6자리 코드를 입력하세요.",
+      verificationCodeInvalid: "6자리 인증 코드를 입력하세요.",
+      verifyButton: "인증하기",
+      completeButton: "완료",
+      backToLogin: "로그인으로 이동",
     },
     dashboard: {
       greeting: "안녕하세요",

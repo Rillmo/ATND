@@ -12,34 +12,37 @@ export type Database = {
       users: {
         Row: {
           id: string;
-          name: string;
-          email: string;
-          image_url: string | null;
-          terms_accepted_at: string | null;
-          privacy_accepted_at: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          email: string;
-          image_url?: string | null;
-          terms_accepted_at?: string | null;
-          privacy_accepted_at?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          email?: string;
-          image_url?: string | null;
-          terms_accepted_at?: string | null;
-          privacy_accepted_at?: string | null;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
-      user_credentials: {
+      name: string;
+      email: string;
+      image_url: string | null;
+      terms_accepted_at: string | null;
+      privacy_accepted_at: string | null;
+      email_verified_at: string | null;
+      created_at: string;
+    };
+    Insert: {
+      id?: string;
+      name: string;
+      email: string;
+      image_url?: string | null;
+      terms_accepted_at?: string | null;
+      privacy_accepted_at?: string | null;
+      email_verified_at?: string | null;
+      created_at?: string;
+    };
+    Update: {
+      id?: string;
+      name?: string;
+      email?: string;
+      image_url?: string | null;
+      terms_accepted_at?: string | null;
+      privacy_accepted_at?: string | null;
+      email_verified_at?: string | null;
+      created_at?: string;
+    };
+    Relationships: [];
+  };
+  user_credentials: {
         Row: {
           user_id: string;
           password_hash: string;
@@ -53,10 +56,37 @@ export type Database = {
         Update: {
           user_id?: string;
           password_hash?: string;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
+      created_at?: string;
+    };
+    Relationships: [];
+  };
+  email_verification_tokens: {
+    Row: {
+      id: string;
+      email: string;
+      token_hash: string;
+      expires_at: string;
+      consumed_at: string | null;
+      created_at: string;
+    };
+    Insert: {
+      id?: string;
+      email: string;
+      token_hash: string;
+      expires_at: string;
+      consumed_at?: string | null;
+      created_at?: string;
+    };
+    Update: {
+      id?: string;
+      email?: string;
+      token_hash?: string;
+      expires_at?: string;
+      consumed_at?: string | null;
+      created_at?: string;
+    };
+    Relationships: [];
+  };
       organizations: {
         Row: {
           id: string;

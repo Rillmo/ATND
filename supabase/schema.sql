@@ -7,6 +7,7 @@ create table if not exists users (
   image_url text,
   terms_accepted_at timestamptz,
   privacy_accepted_at timestamptz,
+  email_verified_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -15,6 +16,21 @@ create table if not exists user_credentials (
   password_hash text not null,
   created_at timestamptz not null default now()
 );
+
+create table if not exists email_verification_tokens (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  token_hash text not null,
+  expires_at timestamptz not null,
+  consumed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create unique index if not exists email_verification_tokens_token_hash_idx
+  on email_verification_tokens(token_hash);
+
+create index if not exists email_verification_tokens_email_idx
+  on email_verification_tokens(email, consumed_at);
 
 do $$ begin
   create type member_role as enum ('MANAGER','MEMBER');

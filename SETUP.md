@@ -39,3 +39,26 @@ alter table users
   add column if not exists terms_accepted_at timestamptz,
   add column if not exists privacy_accepted_at timestamptz;
 ```
+
+## 추가: 이메일 인증 테이블 업데이트
+기존 DB를 사용 중이라면 아래 SQL을 실행하세요.
+
+```
+alter table users
+  add column if not exists email_verified_at timestamptz;
+
+create table if not exists email_verification_tokens (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  token_hash text not null,
+  expires_at timestamptz not null,
+  consumed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create unique index if not exists email_verification_tokens_token_hash_idx
+  on email_verification_tokens(token_hash);
+
+create index if not exists email_verification_tokens_email_idx
+  on email_verification_tokens(email, consumed_at);
+```

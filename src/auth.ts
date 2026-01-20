@@ -41,11 +41,12 @@ providers.push(
         return null;
       }
 
+      const email = parsed.data.email.toLowerCase();
       const supabase = getSupabaseAdmin();
       const { data: user, error: userError } = await supabase
         .from("users")
-        .select("id, email, name, image_url")
-        .eq("email", parsed.data.email)
+        .select("id, email, name, image_url, email_verified_at")
+        .eq("email", email)
         .single();
 
       if (userError || !user) {
@@ -73,7 +74,7 @@ providers.push(
 
       return {
         id: user.id,
-        email: user.email,
+        email: user.email ?? email,
         name: user.name,
         image: user.image_url ?? undefined,
       };
@@ -111,6 +112,9 @@ export const authOptions: NextAuthOptions = {
           return false;
         }
 
+        const email = user.email.toLowerCase();
+        (user as typeof user).email = email;
+
         const isEmailVerified =
           typeof profile?.email_verified === "boolean"
             ? profile.email_verified
@@ -124,16 +128,20 @@ export const authOptions: NextAuthOptions = {
         }
 
         const supabase = getSupabaseAdmin();
+        const nowIso = new Date().toISOString();
+        const updates: Record<string, unknown> = {
+          email,
+          name: user.name ?? "",
+          image_url: user.image ?? null,
+        };
+
+        if (isEmailVerified) {
+          updates.email_verified_at = nowIso;
+        }
+
         const { error: upsertError } = await supabase
           .from("users")
-          .upsert(
-            {
-              email: user.email,
-              name: user.name ?? "",
-              image_url: user.image ?? null,
-            },
-            { onConflict: "email" }
-          );
+          .upsert(updates, { onConflict: "email" });
 
         if (upsertError) {
           console.error("[auth:signIn] user upsert failed", upsertError);
@@ -143,7 +151,7 @@ export const authOptions: NextAuthOptions = {
         const { data: existing, error: consentError } = await supabase
           .from("users")
           .select("privacy_accepted_at, terms_accepted_at")
-          .eq("email", user.email)
+          .eq("email", email)
           .single();
 
         if (consentError) {
@@ -170,6 +178,11 @@ export const authOptions: NextAuthOptions = {
         const userWithConsent = user as
           | (typeof user & { needsConsent?: boolean })
           | undefined;
+
+        if (userWithConsent?.email) {
+          token.email = userWithConsent.email.toLowerCase();
+        }
+
         const shouldLookupUser =
           Boolean(account?.provider && token.email) ||
           (!token.userId && token.email) ||

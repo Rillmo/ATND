@@ -10,6 +10,7 @@ const publicPaths = new Set([
   "/consent",
   "/privacy",
   "/terms",
+  "/verify",
 ]);
 
 export async function middleware(req: NextRequest) {

@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useI18n } from "@/components/LocaleProvider";
 
+const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S+$/;
+
 export default function LoginForm() {
   const { dictionary } = useI18n();
   const [email, setEmail] = useState("");
@@ -47,12 +49,28 @@ export default function LoginForm() {
     setError(null);
     setLoading(true);
 
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-        callbackUrl,
-      });
+    if (!email.includes("@")) {
+      setLoading(false);
+      setError(dictionary.auth.emailInvalid);
+      return;
+    }
+
+    if (
+      password.length < 8 ||
+      password.length > 64 ||
+      !PASSWORD_REGEX.test(password)
+    ) {
+      setLoading(false);
+      setError(dictionary.auth.passwordInvalid);
+      return;
+    }
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+      callbackUrl,
+    });
 
     if (result?.error) {
       setError(dictionary.auth.invalidCredentials);
@@ -72,7 +90,7 @@ export default function LoginForm() {
         {dictionary.auth.loginSubtitle}
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
         <div>
           <label className="text-sm font-semibold text-slate-700">
             {dictionary.auth.email}
@@ -89,16 +107,20 @@ export default function LoginForm() {
           <label className="text-sm font-semibold text-slate-700">
             {dictionary.auth.password}
           </label>
-        <input
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
-          minLength={8}
-          maxLength={64}
-          pattern="^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9])\\S+$"
-          required
-        />
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
+            required
+            aria-describedby="password-requirement"
+          />
+          <p
+            id="password-requirement"
+            className="mt-1 text-xs text-slate-500"
+          >
+            {dictionary.auth.passwordRequirement}
+          </p>
         </div>
         {error ? <p className="text-sm text-rose-600">{error}</p> : null}
         <button

@@ -62,6 +62,19 @@ export async function POST(
     return NextResponse.json({ error: "Failed to transfer" }, { status: 500 });
   }
 
+  const { error: eventOwnerError } = await supabase
+    .from("events")
+    .update({ created_by: parsed.data.newManagerUserId })
+    .eq("org_id", orgId)
+    .eq("created_by", session.user.id);
+
+  if (eventOwnerError) {
+    return NextResponse.json(
+      { error: "Failed to transfer events" },
+      { status: 500 }
+    );
+  }
+
   await supabase
     .from("organization_members")
     .update({ role: "MEMBER" })
