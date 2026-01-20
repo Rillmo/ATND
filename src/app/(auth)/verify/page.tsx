@@ -15,6 +15,7 @@ export default function VerifyPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [verificationId, setVerificationId] = useState<string | null>(null);
+  const [completing, setCompleting] = useState(false);
 
   useEffect(() => {
     const initialEmail = searchParams.get("email");
@@ -96,7 +97,7 @@ export default function VerifyPage() {
       return;
     }
 
-    setStatus("loading");
+    setCompleting(true);
     const registerResponse = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -107,6 +108,7 @@ export default function VerifyPage() {
     });
 
     if (!registerResponse.ok) {
+      setCompleting(false);
       setStatus("error");
       setMessage(dictionary.auth.verificationFailed);
       return;
@@ -121,6 +123,7 @@ export default function VerifyPage() {
     });
 
     if (loginResult?.error) {
+      setCompleting(false);
       setStatus("error");
       setMessage(dictionary.auth.loginFailed);
       return;
@@ -198,7 +201,7 @@ export default function VerifyPage() {
           type="button"
           onClick={handleComplete}
           className="block w-full rounded-full bg-teal-600 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-70"
-          disabled={status === "loading"}
+          disabled={completing}
         >
           {dictionary.auth.completeButton}
         </button>

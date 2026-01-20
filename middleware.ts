@@ -34,6 +34,10 @@ export async function middleware(req: NextRequest) {
   }
 
   if (token.needsConsent) {
+    if (!token.userId) {
+      return NextResponse.next();
+    }
+
     const supabase = getSupabaseAdmin();
     const { data: consent } = await supabase
       .from("users")

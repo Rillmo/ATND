@@ -45,7 +45,12 @@ export async function DELETE() {
         id: event.id,
         managerUserId: event.organizations?.manager_user_id ?? null,
       }))
-      .filter((event) => Boolean(event.managerUserId));
+      .filter(
+        (
+          event
+        ): event is { id: string; managerUserId: string } =>
+          Boolean(event.managerUserId)
+      );
 
     if (updates.length !== typedEvents.length) {
       return NextResponse.json({ error: "Events" }, { status: 409 });

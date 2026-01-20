@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import type { Database } from "@/types/supabase";
 import { verifyPassword } from "@/lib/passwords";
 import { passwordSchema } from "@/lib/validation";
 
@@ -115,9 +116,10 @@ export const authOptions: NextAuthOptions = {
         const email = user.email.toLowerCase();
         (user as typeof user).email = email;
 
+        const googleProfile = profile as { email_verified?: boolean } | null;
         const isEmailVerified =
-          typeof profile?.email_verified === "boolean"
-            ? profile.email_verified
+          typeof googleProfile?.email_verified === "boolean"
+            ? googleProfile.email_verified
             : true;
 
         if (!isEmailVerified) {
@@ -129,7 +131,7 @@ export const authOptions: NextAuthOptions = {
 
         const supabase = getSupabaseAdmin();
         const nowIso = new Date().toISOString();
-        const updates: Record<string, unknown> = {
+        const updates: Database["public"]["Tables"]["users"]["Insert"] = {
           email,
           name: user.name ?? "",
           image_url: user.image ?? null,
