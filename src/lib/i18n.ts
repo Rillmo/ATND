@@ -214,6 +214,8 @@ export const dictionaries = {
       bulkSelectionStart: "Select",
       bulkSelectionCancel: "Cancel",
       bulkSelectionHint: "Select upcoming events to delete in bulk.",
+      listShowMore: "Show more",
+      listShowLess: "Show less",
     },
     status: {
       notAttended: "NOT_ATTENDED",
@@ -486,6 +488,8 @@ export const dictionaries = {
       bulkSelectionStart: "선택하기",
       bulkSelectionCancel: "선택 취소",
       bulkSelectionHint: "예정된 일정을 선택해서 한 번에 삭제할 수 있습니다.",
+      listShowMore: "더보기",
+      listShowLess: "접기",
     },
     status: {
       notAttended: "NOT_ATTENDED",

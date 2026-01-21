@@ -28,6 +28,9 @@ export default function EventList({
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
+  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
+  const [showAllOngoing, setShowAllOngoing] = useState(false);
+  const [showAllEnded, setShowAllEnded] = useState(false);
 
   const upcomingEvents = useMemo(
     () => events.filter((event) => event.status === "UPCOMING"),
@@ -82,12 +85,22 @@ export default function EventList({
     window.location.reload();
   };
 
-  const renderList = (list: EventRow[], label: string, badgeClasses: string) => (
+  const renderList = (
+    list: EventRow[],
+    label: string,
+    badgeClasses: string,
+    expand: boolean,
+    onToggle: () => void
+  ) => {
+    const visible = expand ? list : list.slice(0, 5);
+    const hasMore = list.length > 5;
+
+    return (
     <div className="space-y-3">
       <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${badgeClasses}`}>
         {label}
       </p>
-      {list.map((event) => {
+      {visible.map((event) => {
         const content = (
           <div className="flex flex-1 items-center justify-between rounded-2xl bg-white/90 px-5 py-4 shadow-sm ring-1 ring-slate-200/70">
             <div>
@@ -140,8 +153,18 @@ export default function EventList({
           </Link>
         );
       })}
+      {hasMore ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          className="text-xs font-semibold text-slate-700 underline"
+        >
+          {expand ? dictionary.event.listShowLess : dictionary.event.listShowMore}
+        </button>
+      ) : null}
     </div>
   );
+  };
 
   return (
     <div className="space-y-6">
@@ -203,14 +226,28 @@ export default function EventList({
         ? renderList(
             ongoingEvents,
             dictionary.org.sectionOngoing,
-            "text-teal-700"
+            "text-teal-700",
+            showAllOngoing,
+            () => setShowAllOngoing((prev) => !prev)
           )
         : null}
       {upcomingEvents.length
-        ? renderList(upcomingEvents, dictionary.org.sectionUpcoming, "text-slate-500")
+        ? renderList(
+            upcomingEvents,
+            dictionary.org.sectionUpcoming,
+            "text-slate-500",
+            showAllUpcoming,
+            () => setShowAllUpcoming((prev) => !prev)
+          )
         : null}
       {endedEvents.length
-        ? renderList(endedEvents, dictionary.org.sectionEnded, "text-slate-500")
+        ? renderList(
+            endedEvents,
+            dictionary.org.sectionEnded,
+            "text-slate-500",
+            showAllEnded,
+            () => setShowAllEnded((prev) => !prev)
+          )
         : null}
     </div>
   );
