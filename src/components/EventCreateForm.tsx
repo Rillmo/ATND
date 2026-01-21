@@ -25,19 +25,26 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
   const [loading, setLoading] = useState(false);
 
   const previewDates = useMemo(() => {
-    if (!recurring || !eventDate) return "-";
+    if (!recurring || !eventDate || !startAt) return "-";
     const baseDateParts = eventDate.split("-").map(Number);
     if (baseDateParts.length !== 3) return "-";
     const [year, month, day] = baseDateParts;
     const baseDate = new Date(year, month - 1, day);
+    const startBase = new Date(startAt);
+    if (Number.isNaN(startBase.valueOf())) return "-";
     const baseDay = ((baseDate.getDay() + 6) % 7) + 1;
     const monday = new Date(baseDate);
     monday.setDate(baseDate.getDate() - (baseDay - 1));
     const dates: string[] = [];
+    const now = new Date();
     for (let week = 0; week < weeksCount; week += 1) {
       weekdays.forEach((weekday) => {
         const date = new Date(monday);
         date.setDate(monday.getDate() + (weekday - 1) + week * 7);
+        const startCandidate = new Date(date);
+        startCandidate.setHours(startBase.getHours(), startBase.getMinutes(), 0, 0);
+        if (startCandidate < startBase) return;
+        if (startCandidate < now) return;
         dates.push(
           `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
             2,
@@ -48,7 +55,7 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
     }
     dates.sort();
     return dates.length ? dates.slice(0, 5).join(", ") : "-";
-  }, [eventDate, recurring, weeksCount, weekdays]);
+  }, [eventDate, recurring, startAt, weeksCount, weekdays]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

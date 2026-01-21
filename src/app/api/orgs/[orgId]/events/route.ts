@@ -131,11 +131,12 @@ export async function POST(
           endAt.setDate(endAt.getDate() + 1);
         }
 
+        // Skip occurrences before the base start or in the past.
+        if (startAt < startBase) {
+          continue;
+        }
         if (startAt < now) {
-          return NextResponse.json(
-            { error: "Start time must be in the future" },
-            { status: 400 }
-          );
+          continue;
         }
 
         occurrences.push({
