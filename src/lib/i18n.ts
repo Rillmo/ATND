@@ -207,6 +207,10 @@ export const dictionaries = {
         "This action cannot be undone once the event is removed.",
       deleteAction: "Delete",
       deleteCancel: "Cancel",
+      bulkDelete: "Delete selected",
+      bulkDeleteConfirm: "Delete selected events?",
+      bulkDeleteError: "Failed to delete selected events.",
+      bulkSelectionLabel: "Selected: {count}",
     },
     status: {
       notAttended: "NOT_ATTENDED",
@@ -472,6 +476,10 @@ export const dictionaries = {
       deleteNotice: "삭제하면 복구할 수 없습니다.",
       deleteAction: "삭제하기",
       deleteCancel: "취소",
+      bulkDelete: "선택 삭제",
+      bulkDeleteConfirm: "선택한 일정을 삭제할까요?",
+      bulkDeleteError: "선택한 일정을 삭제하지 못했습니다.",
+      bulkSelectionLabel: "선택됨: {count}",
     },
     status: {
       notAttended: "NOT_ATTENDED",
