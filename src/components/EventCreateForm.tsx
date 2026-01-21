@@ -58,6 +58,25 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
     return dates;
   }, [eventDate, recurring, startAt, weeksCount, weekdays]);
 
+  const groupedByMonth = useMemo(() => {
+    const byMonth = new Map<
+      string,
+      { month: string; dates: { iso: string; day: number }[] }
+    >();
+    previewDates.forEach((iso) => {
+      const date = new Date(iso);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      const label = date.toLocaleDateString(
+        locale === "ko" ? "ko-KR" : "en-US",
+        { month: "long", year: "numeric" }
+      );
+      const entry = byMonth.get(key) ?? { month: label, dates: [] };
+      entry.dates.push({ iso, day: date.getDate() });
+      byMonth.set(key, entry);
+    });
+    return Array.from(byMonth.values());
+  }, [locale, previewDates]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
@@ -246,67 +265,104 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
                 className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
               />
             </div>
-          <div className="rounded-xl bg-white px-4 py-3 text-xs text-slate-600">
-            <p className="font-semibold text-slate-700">
-              {dictionary.event.repeatPreview}
-            </p>
-            {previewDates.length === 0 ? (
-              <p className="mt-1">-</p>
-            ) : (
-              <>
-                <p className="mt-1 text-slate-700 font-semibold">
-                  {previewDates.length}{" "}
-                  {locale === "ko" ? "개 일정 예정" : "occurrences scheduled"}
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  {locale === "ko" ? "첫 일정" : "First"}:{" "}
-                  {new Date(previewDates[0]).toLocaleDateString(
-                    locale === "ko" ? "ko-KR" : "en-US",
-                    { weekday: "short", month: "short", day: "numeric", year: "numeric" }
-                  )}
-                  {" · "}
-                  {locale === "ko" ? "마지막" : "Last"}:{" "}
-                  {new Date(previewDates[previewDates.length - 1]).toLocaleDateString(
-                    locale === "ko" ? "ko-KR" : "en-US",
-                    { weekday: "short", month: "short", day: "numeric", year: "numeric" }
-                  )}
-                </p>
-                <ul className="mt-2 space-y-1 text-[13px] text-slate-700">
-                  {(showAllPreview
-                    ? previewDates
-                    : previewDates.slice(0, 8)
-                  ).map((date) => (
-                    <li key={date} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
-                      <span>
-                        {new Date(date).toLocaleDateString(
-                          locale === "ko" ? "ko-KR" : "en-US",
-                          { weekday: "short", month: "short", day: "numeric", year: "numeric" }
-                        )}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                {previewDates.length > 8 ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowAllPreview((prev) => !prev)}
-                    className="mt-2 text-[11px] font-semibold text-slate-700 underline"
-                  >
-                    {showAllPreview
-                      ? locale === "ko"
-                        ? "접기"
-                        : "Show less"
-                      : locale === "ko"
-                        ? "더보기"
-                        : "Show more"}
-                  </button>
-                ) : null}
-              </>
-            )}
+            <div className="rounded-xl bg-white px-4 py-3 text-xs text-slate-600">
+              <p className="font-semibold text-slate-700">
+                {dictionary.event.repeatPreview}
+              </p>
+              {previewDates.length === 0 ? (
+                <p className="mt-1">-</p>
+              ) : (
+                <>
+                  <p className="mt-1 text-slate-700 font-semibold">
+                    {previewDates.length}{" "}
+                    {locale === "ko" ? "개 일정 예정" : "occurrences scheduled"}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {locale === "ko" ? "첫 일정" : "First"}:{" "}
+                    {new Date(previewDates[0]).toLocaleDateString(
+                      locale === "ko" ? "ko-KR" : "en-US",
+                      { weekday: "short", month: "short", day: "numeric", year: "numeric" }
+                    )}
+                    {" · "}
+                    {locale === "ko" ? "마지막" : "Last"}:{" "}
+                    {new Date(previewDates[previewDates.length - 1]).toLocaleDateString(
+                      locale === "ko" ? "ko-KR" : "en-US",
+                      { weekday: "short", month: "short", day: "numeric", year: "numeric" }
+                    )}
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {(showAllPreview ? groupedByMonth : groupedByMonth.slice(0, 1)).map(
+                      (group) => (
+                        <div key={group.month} className="rounded-lg border border-slate-200 p-3">
+                          <p className="text-[12px] font-semibold text-slate-700">
+                            {group.month}
+                          </p>
+                          <div className="mt-2 grid grid-cols-7 gap-1 text-[11px] text-slate-500">
+                            {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
+                              <span key={d} className="text-center">
+                                {d}
+                              </span>
+                            ))}
+                            {(() => {
+                              const dates = group.dates.map((d) => d.day);
+                              const sample = new Date(group.dates[0].iso);
+                              const firstOfMonth = new Date(
+                                sample.getFullYear(),
+                                sample.getMonth(),
+                                1
+                              );
+                              const startOffset =
+                                (firstOfMonth.getDay() + 6) % 7; /* Monday=0 */
+                              const totalDays = new Date(
+                                sample.getFullYear(),
+                                sample.getMonth() + 1,
+                                0
+                              ).getDate();
+                              const cells: Array<{ key: string; label?: number }> = [];
+                              for (let i = 0; i < startOffset; i += 1) {
+                                cells.push({ key: `pad-${i}` });
+                              }
+                              for (let day = 1; day <= totalDays; day += 1) {
+                                cells.push({ key: `day-${day}`, label: day });
+                              }
+                              return cells.map((cell) => (
+                                <span
+                                  key={cell.key}
+                                  className={`flex h-7 w-7 items-center justify-center rounded-md ${
+                                    cell.label && dates.includes(cell.label)
+                                      ? "bg-slate-900 text-white"
+                                      : "text-slate-500"
+                                  }`}
+                                >
+                                  {cell.label ?? ""}
+                                </span>
+                              ));
+                            })()}
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                  {groupedByMonth.length > 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowAllPreview((prev) => !prev)}
+                      className="mt-3 text-[11px] font-semibold text-slate-700 underline"
+                    >
+                      {showAllPreview
+                        ? locale === "ko"
+                          ? "접기"
+                          : "Show less"
+                        : locale === "ko"
+                          ? "더보기"
+                          : "Show more"}
+                    </button>
+                  ) : null}
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
       </div>
 
       <LocationPicker
