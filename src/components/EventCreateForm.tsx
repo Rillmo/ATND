@@ -58,20 +58,25 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
     return dates;
   }, [eventDate, recurring, startAt, weeksCount, weekdays]);
 
+  const parseDateParts = (iso: string) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    return { y, m, d, date: new Date(Date.UTC(y, m - 1, d)) };
+  };
+
   const groupedByMonth = useMemo(() => {
     const byMonth = new Map<
       string,
       { month: string; dates: { iso: string; day: number }[] }
     >();
     previewDates.forEach((iso) => {
-      const date = new Date(iso);
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      const { y, m, d, date } = parseDateParts(iso);
+      const key = `${y}-${String(m).padStart(2, "0")}`;
       const label = date.toLocaleDateString(
         locale === "ko" ? "ko-KR" : "en-US",
         { month: "long", year: "numeric" }
       );
       const entry = byMonth.get(key) ?? { month: label, dates: [] };
-      entry.dates.push({ iso, day: date.getDate() });
+      entry.dates.push({ iso, day: d });
       byMonth.set(key, entry);
     });
     return Array.from(byMonth.values());
@@ -279,13 +284,13 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
                   </p>
                   <p className="text-[11px] text-slate-500">
                     {locale === "ko" ? "첫 일정" : "First"}:{" "}
-                    {new Date(previewDates[0]).toLocaleDateString(
+                    {parseDateParts(previewDates[0]).date.toLocaleDateString(
                       locale === "ko" ? "ko-KR" : "en-US",
                       { weekday: "short", month: "short", day: "numeric", year: "numeric" }
                     )}
                     {" · "}
                     {locale === "ko" ? "마지막" : "Last"}:{" "}
-                    {new Date(previewDates[previewDates.length - 1]).toLocaleDateString(
+                    {parseDateParts(previewDates[previewDates.length - 1]).date.toLocaleDateString(
                       locale === "ko" ? "ko-KR" : "en-US",
                       { weekday: "short", month: "short", day: "numeric", year: "numeric" }
                     )}
@@ -305,19 +310,14 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
                             ))}
                             {(() => {
                               const dates = group.dates.map((d) => d.day);
-                              const sample = new Date(group.dates[0].iso);
+                              const sampleParts = parseDateParts(group.dates[0].iso);
                               const firstOfMonth = new Date(
-                                sample.getFullYear(),
-                                sample.getMonth(),
-                                1
+                                Date.UTC(sampleParts.y, sampleParts.m - 1, 1)
                               );
-                              const startOffset =
-                                (firstOfMonth.getDay() + 6) % 7; /* Monday=0 */
+                              const startOffset = (firstOfMonth.getUTCDay() + 6) % 7; /* Monday=0 */
                               const totalDays = new Date(
-                                sample.getFullYear(),
-                                sample.getMonth() + 1,
-                                0
-                              ).getDate();
+                                Date.UTC(sampleParts.y, sampleParts.m, 0)
+                              ).getUTCDate();
                               const cells: Array<{ key: string; label?: number }> = [];
                               for (let i = 0; i < startOffset; i += 1) {
                                 cells.push({ key: `pad-${i}` });
