@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 
 const schema = z.object({
   ids: z.array(z.string().uuid()).min(1).max(200),
@@ -46,6 +47,11 @@ export async function POST(
     .in("id", ids);
 
   if (fetchError) {
+    logApiError("events.bulk_delete.fetch", fetchError, {
+      userId: session.user.id,
+      orgId,
+      requested: ids.length,
+    });
     return NextResponse.json({ error: "Failed to load events" }, { status: 500 });
   }
 
@@ -67,6 +73,11 @@ export async function POST(
     .in("id", deletableIds);
 
   if (deleteError) {
+    logApiError("events.bulk_delete.delete", deleteError, {
+      userId: session.user.id,
+      orgId,
+      deleted: deletableIds.length,
+    });
     return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
 

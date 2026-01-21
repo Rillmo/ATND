@@ -14,6 +14,7 @@ export const dictionaries = {
     nav: {
       dashboard: "Dashboard",
       settings: "Settings",
+      support: "Support",
       login: "Log In",
       signup: "Sign Up",
       logout: "Log Out",
@@ -109,6 +110,17 @@ export const dictionaries = {
       errorGeneric: "Failed to send reset code. Try again.",
       errorInvalid: "Reset failed. Check the code and try again.",
       backToLogin: "Back to login",
+    },
+    support: {
+      title: "Contact support",
+      subtitle: "Tell us what happened and we will get back to you.",
+      subjectLabel: "Subject",
+      messageLabel: "Message",
+      submit: "Send message",
+      sending: "Sending...",
+      success: "Your message has been sent.",
+      errorInvalid: "Please fill out the subject and message.",
+      errorGeneric: "Unable to send your message. Please try again.",
     },
     dashboard: {
       greeting: "Welcome",
@@ -258,6 +270,10 @@ export const dictionaries = {
         400: "Managers must transfer ownership before leaving.",
         default: "Unable to leave the organization.",
       },
+      support: {
+        400: "Please check your message and try again.",
+        default: "Unable to send your message.",
+      },
       common: {
         401: "Please log in.",
         403: "You don't have permission.",
@@ -295,6 +311,7 @@ export const dictionaries = {
     nav: {
       dashboard: "대시보드",
       settings: "설정",
+      support: "문의",
       login: "로그인",
       signup: "회원가입",
       logout: "로그아웃",
@@ -389,6 +406,17 @@ export const dictionaries = {
       errorGeneric: "코드 발송에 실패했습니다. 다시 시도하세요.",
       errorInvalid: "재설정에 실패했습니다. 코드를 확인하고 다시 시도하세요.",
       backToLogin: "로그인으로 이동",
+    },
+    support: {
+      title: "문의하기",
+      subtitle: "문의 내용을 남겨주시면 빠르게 답변드릴게요.",
+      subjectLabel: "제목",
+      messageLabel: "내용",
+      submit: "문의 보내기",
+      sending: "전송 중...",
+      success: "문의가 접수되었습니다.",
+      errorInvalid: "제목과 내용을 입력해주세요.",
+      errorGeneric: "문의 전송에 실패했습니다. 다시 시도해주세요.",
     },
     dashboard: {
       greeting: "안녕하세요",
@@ -536,6 +564,10 @@ export const dictionaries = {
       leaveOrg: {
         400: "매니저는 위임 후 탈퇴할 수 있습니다.",
         default: "탈퇴에 실패했습니다.",
+      },
+      support: {
+        400: "문의 내용을 다시 확인해주세요.",
+        default: "문의 전송에 실패했습니다.",
       },
       common: {
         401: "로그인이 필요합니다.",

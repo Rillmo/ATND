@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 
 export async function POST(
   _request: Request,
@@ -38,6 +39,10 @@ export async function POST(
     .eq("user_id", session.user.id);
 
   if (error) {
+    logApiError("orgs.leave", error, {
+      userId: session.user.id,
+      orgId,
+    });
     return NextResponse.json({ error: "Failed to leave" }, { status: 500 });
   }
 

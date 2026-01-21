@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { orgUpdateSchema } from "@/lib/validation";
 
 function isManager(role: string | null) {
@@ -82,6 +83,10 @@ export async function PATCH(
     .eq("id", orgId);
 
   if (error) {
+    logApiError("orgs.update", error, {
+      userId: session.user.id,
+      orgId,
+    });
     return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
 
@@ -117,6 +122,10 @@ export async function DELETE(
     .eq("id", orgId);
 
   if (error) {
+    logApiError("orgs.delete", error, {
+      userId: session.user.id,
+      orgId,
+    });
     return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 
 export async function POST(request: Request) {
   const session = await getAuthSession();
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
     .eq("id", session.user.id);
 
   if (error) {
+    logApiError("consent.update", error, { userId: session.user.id });
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 

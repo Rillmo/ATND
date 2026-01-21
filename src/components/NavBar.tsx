@@ -31,6 +31,12 @@ export default async function NavBar() {
                 {dictionary.nav.dashboard}
               </Link>
               <Link
+                href="/support"
+                className="text-sm font-semibold text-slate-700 hover:text-slate-900"
+              >
+                {dictionary.nav.support}
+              </Link>
+              <Link
                 href="/settings"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 aria-label={dictionary.nav.settings}

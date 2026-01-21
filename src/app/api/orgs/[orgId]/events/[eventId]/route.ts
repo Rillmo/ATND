@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { eventSchema } from "@/lib/validation";
 
 export async function GET(
@@ -120,6 +121,11 @@ export async function PATCH(
     .eq("id", eventId);
 
   if (error) {
+    logApiError("events.update", error, {
+      userId: session.user.id,
+      orgId,
+      eventId,
+    });
     return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
 
@@ -174,6 +180,11 @@ export async function DELETE(
     .eq("id", eventId);
 
   if (error) {
+    logApiError("events.delete", error, {
+      userId: session.user.id,
+      orgId,
+      eventId,
+    });
     return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
 

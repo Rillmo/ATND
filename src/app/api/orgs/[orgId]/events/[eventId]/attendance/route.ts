@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 
 export async function GET(
   _request: Request,
@@ -56,6 +57,11 @@ export async function GET(
   };
 
   if (memberError) {
+    logApiError("events.attendance.list", memberError, {
+      userId: session.user.id,
+      orgId,
+      eventId,
+    });
     return NextResponse.json({ error: "Failed to load members" }, { status: 500 });
   }
 

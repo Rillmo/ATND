@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { joinOrgSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
@@ -16,22 +17,35 @@ export async function POST(request: Request) {
   }
 
   const supabase = getSupabaseAdmin();
-  const { data: org } = await supabase
+  const { data: org, error: orgError } = await supabase
     .from("organizations")
     .select("id")
     .eq("invite_code", parsed.data.inviteCode)
     .single();
 
+  if (orgError) {
+    logApiError("orgs.join.lookup", orgError, { userId: session.user.id });
+    return NextResponse.json({ error: "Failed to join" }, { status: 500 });
+  }
+
   if (!org) {
     return NextResponse.json({ error: "Invalid invite code" }, { status: 404 });
   }
 
-  const { data: existing } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from("organization_members")
     .select("org_id")
     .eq("org_id", org.id)
     .eq("user_id", session.user.id)
     .single();
+
+  if (existingError) {
+    logApiError("orgs.join.membership_check", existingError, {
+      userId: session.user.id,
+      orgId: org.id,
+    });
+    return NextResponse.json({ error: "Failed to join" }, { status: 500 });
+  }
 
   if (existing) {
     return NextResponse.json({ error: "Already a member" }, { status: 409 });
@@ -46,6 +60,10 @@ export async function POST(request: Request) {
     });
 
   if (memberError) {
+    logApiError("orgs.join.insert", memberError, {
+      userId: session.user.id,
+      orgId: org.id,
+    });
     return NextResponse.json({ error: "Failed to join" }, { status: 500 });
   }
 

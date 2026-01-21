@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { checkInSchema } from "@/lib/validation";
 import { calculateDistanceMeters } from "@/lib/geo";
 
@@ -85,6 +86,11 @@ export async function POST(
     );
 
   if (error) {
+    logApiError("events.checkin", error, {
+      userId: session.user.id,
+      orgId,
+      eventId,
+    });
     return NextResponse.json({ error: "Failed to check in" }, { status: 500 });
   }
 

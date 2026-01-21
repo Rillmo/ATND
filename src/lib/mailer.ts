@@ -24,6 +24,9 @@ function getTransporter() {
     port,
     secure,
     auth: { user, pass },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   });
 
   return cachedTransporter;
@@ -64,5 +67,39 @@ export async function sendPasswordResetEmail(params: {
     subject: "Reset your password",
     text: `Your password reset code is ${params.code}`,
     html: `<p>Your password reset code is:</p><p><strong>${params.code}</strong></p>`,
+  });
+}
+
+export async function sendSupportEmail(params: {
+  fromEmail: string;
+  userId: string;
+  subject: string;
+  message: string;
+  userAgent?: string | null;
+  ipAddress?: string | null;
+}) {
+  const from = process.env.EMAIL_FROM;
+  const to = process.env.SUPPORT_EMAIL;
+  if (!from || !to) {
+    throw new Error("Support email configuration is missing");
+  }
+
+  const transporter = getTransporter();
+  const metaLines = [
+    `User ID: ${params.userId}`,
+    `From: ${params.fromEmail}`,
+    params.ipAddress ? `IP: ${params.ipAddress}` : null,
+    params.userAgent ? `User-Agent: ${params.userAgent}` : null,
+  ].filter(Boolean);
+
+  const text = `${metaLines.join("\n")}\n\n${params.message}`;
+
+  await transporter.sendMail({
+    from,
+    to,
+    replyTo: params.fromEmail,
+    subject: `[ATND] ${params.subject}`,
+    text,
+    html: `<p>${metaLines.join("<br />")}</p><hr /><p>${params.message}</p>`,
   });
 }

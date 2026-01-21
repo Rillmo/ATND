@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { hashPassword } from "@/lib/passwords";
 import { registerSchema } from "@/lib/validation";
 
@@ -69,6 +70,9 @@ export async function POST(request: Request) {
     .single();
 
   if (userError || !user) {
+    logApiError("auth.register.user", userError ?? new Error("User missing"), {
+      email,
+    });
     return NextResponse.json(
       { error: "Failed to create user" },
       { status: 500 }
@@ -83,6 +87,9 @@ export async function POST(request: Request) {
     });
 
   if (credentialError) {
+    logApiError("auth.register.credentials", credentialError, {
+      userId: user.id,
+    });
     return NextResponse.json(
       { error: "Failed to save credentials" },
       { status: 500 }

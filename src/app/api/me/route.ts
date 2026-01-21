@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { profileUpdateSchema } from "@/lib/validation";
 
 export async function GET() {
@@ -59,6 +60,7 @@ export async function PATCH(request: Request) {
     .eq("id", session.user.id);
 
   if (error) {
+    logApiError("me.update", error, { userId: session.user.id });
     return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
 

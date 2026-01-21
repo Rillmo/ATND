@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { issuePasswordReset } from "@/lib/password-reset";
 
 const schema = z.object({
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, sent: true });
   } catch (error) {
-    console.error("[auth:password-reset:request] failed", error);
+    logApiError("auth.password_reset.request", error, { email });
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }

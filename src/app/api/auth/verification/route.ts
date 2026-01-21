@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { issueEmailVerification } from "@/lib/verification";
 
 const schema = z.object({
@@ -32,7 +33,9 @@ export async function POST(request: Request) {
     await issueEmailVerification(parsed.data.email.toLowerCase());
     return NextResponse.json({ ok: true, sent: true });
   } catch (error) {
-    console.error("[auth:verification] failed to send", error);
+    logApiError("auth.verification.send", error, {
+      email: parsed.data.email.toLowerCase(),
+    });
     return NextResponse.json({ error: "Failed to send" }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { logApiError } from "@/lib/api-logger";
 import { passwordSchema } from "@/lib/validation";
 import { verifyPasswordReset } from "@/lib/password-reset";
 
@@ -17,15 +18,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
-  const result = await verifyPasswordReset({
-    email: parsed.data.email,
-    code: parsed.data.code,
-    newPassword: parsed.data.newPassword,
-  });
+  try {
+    const result = await verifyPasswordReset({
+      email: parsed.data.email,
+      code: parsed.data.code,
+      newPassword: parsed.data.newPassword,
+    });
 
-  if (!result.ok) {
-    return NextResponse.json({ error: result.reason }, { status: 400 });
+    if (!result.ok) {
+      return NextResponse.json({ error: result.reason }, { status: 400 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    logApiError("auth.password_reset.verify", error, {
+      email: parsed.data.email,
+    });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true });
 }

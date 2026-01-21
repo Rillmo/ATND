@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 
 export async function DELETE() {
   const session = await getAuthSession();
@@ -18,6 +19,7 @@ export async function DELETE() {
     .limit(1);
 
   if (managedError) {
+    logApiError("account.delete.managed_orgs", managedError, { userId });
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 
@@ -31,6 +33,7 @@ export async function DELETE() {
     .eq("created_by", userId);
 
   if (eventsError) {
+    logApiError("account.delete.created_events", eventsError, { userId });
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 
@@ -64,6 +67,10 @@ export async function DELETE() {
         .eq("created_by", userId);
 
       if (updateError) {
+        logApiError("account.delete.reassign_events", updateError, {
+          userId,
+          eventId: entry.id,
+        });
         return NextResponse.json({ error: "Events" }, { status: 409 });
       }
     }
@@ -75,6 +82,7 @@ export async function DELETE() {
     .eq("id", userId);
 
   if (deleteError) {
+    logApiError("account.delete.user", deleteError, { userId });
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 

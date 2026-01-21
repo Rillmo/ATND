@@ -42,6 +42,11 @@ export const joinOrgSchema = z.object({
   inviteCode: z.string().min(4).max(12),
 });
 
+export const supportRequestSchema = z.object({
+  subject: z.string().trim().min(2).max(120),
+  message: z.string().trim().min(2).max(2000),
+});
+
 export const eventSchema = z.object({
   title: z.string().min(2).max(120),
   eventDate: z.string().min(8),

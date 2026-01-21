@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { z } from "zod";
 
 const transferSchema = z.object({
@@ -59,6 +60,11 @@ export async function POST(
     .eq("id", orgId);
 
   if (updateOrgError) {
+    logApiError("orgs.transfer.update_org", updateOrgError, {
+      userId: session.user.id,
+      orgId,
+      newManagerUserId: parsed.data.newManagerUserId,
+    });
     return NextResponse.json({ error: "Failed to transfer" }, { status: 500 });
   }
 
@@ -69,23 +75,45 @@ export async function POST(
     .eq("created_by", session.user.id);
 
   if (eventOwnerError) {
+    logApiError("orgs.transfer.update_events", eventOwnerError, {
+      userId: session.user.id,
+      orgId,
+      newManagerUserId: parsed.data.newManagerUserId,
+    });
     return NextResponse.json(
       { error: "Failed to transfer events" },
       { status: 500 }
     );
   }
 
-  await supabase
+  const { error: demoteError } = await supabase
     .from("organization_members")
     .update({ role: "MEMBER" })
     .eq("org_id", orgId)
     .eq("user_id", session.user.id);
 
-  await supabase
+  if (demoteError) {
+    logApiError("orgs.transfer.demote_manager", demoteError, {
+      userId: session.user.id,
+      orgId,
+    });
+    return NextResponse.json({ error: "Failed to transfer" }, { status: 500 });
+  }
+
+  const { error: promoteError } = await supabase
     .from("organization_members")
     .update({ role: "MANAGER" })
     .eq("org_id", orgId)
     .eq("user_id", parsed.data.newManagerUserId);
+
+  if (promoteError) {
+    logApiError("orgs.transfer.promote_manager", promoteError, {
+      userId: session.user.id,
+      orgId,
+      newManagerUserId: parsed.data.newManagerUserId,
+    });
+    return NextResponse.json({ error: "Failed to transfer" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }

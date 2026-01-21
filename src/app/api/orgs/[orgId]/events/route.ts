@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { eventSchema, recurrenceSchema } from "@/lib/validation";
 
 function getEventStatus(now: Date, start: Date, end: Date) {
@@ -41,6 +42,10 @@ export async function GET(
     .order("attendance_start_at", { ascending: true });
 
   if (error) {
+    logApiError("events.list", error, {
+      userId: session.user.id,
+      orgId,
+    });
     return NextResponse.json({ error: "Failed to load events" }, { status: 500 });
   }
 
@@ -161,6 +166,11 @@ export async function POST(
 
     const { error } = await supabase.from("events").insert(occurrences);
     if (error) {
+      logApiError("events.create.recurrence", error, {
+        userId: session.user.id,
+        orgId,
+        count: occurrences.length,
+      });
       return NextResponse.json(
         { error: "Failed to create events" },
         { status: 500 }
@@ -210,6 +220,10 @@ export async function POST(
     .single();
 
   if (error || !event) {
+    logApiError("events.create", error ?? new Error("Event missing"), {
+      userId: session.user.id,
+      orgId,
+    });
     return NextResponse.json({ error: "Failed to create event" }, { status: 500 });
   }
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 import { generateInviteCode } from "@/lib/invite";
 import { orgCreateSchema } from "@/lib/validation";
 
@@ -36,7 +37,7 @@ export async function GET() {
     };
 
     if (error) {
-      console.error("orgs.get.error", error);
+      logApiError("orgs.get", error, { userId: session.user.id });
       return NextResponse.json(
         { error: "Failed to load orgs" },
         { status: 500 }
@@ -50,7 +51,7 @@ export async function GET() {
 
     return NextResponse.json({ orgs });
   } catch (err) {
-    console.error("orgs.get.exception", err);
+    logApiError("orgs.get.exception", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
@@ -84,7 +85,9 @@ export async function POST(request: Request) {
       .single();
 
     if (orgError || !org) {
-      console.error("orgs.create.error", orgError);
+      logApiError("orgs.create", orgError ?? new Error("Org missing"), {
+        userId: session.user.id,
+      });
       return NextResponse.json(
         { error: "Failed to create org" },
         { status: 500 }
@@ -100,7 +103,10 @@ export async function POST(request: Request) {
       });
 
     if (memberError) {
-      console.error("orgs.create.member.error", memberError);
+      logApiError("orgs.create.member", memberError, {
+        userId: session.user.id,
+        orgId: org.id,
+      });
       return NextResponse.json(
         { error: "Failed to create membership" },
         { status: 500 }
@@ -109,7 +115,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ id: org.id });
   } catch (err) {
-    console.error("orgs.create.exception", err);
+    logApiError("orgs.create.exception", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

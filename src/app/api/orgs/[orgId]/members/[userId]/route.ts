@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { logApiError } from "@/lib/api-logger";
 
 export async function DELETE(
   _request: Request,
@@ -42,6 +43,11 @@ export async function DELETE(
     .eq("user_id", userId);
 
   if (error) {
+    logApiError("orgs.members.remove", error, {
+      userId: session.user.id,
+      orgId,
+      targetUserId: userId,
+    });
     return NextResponse.json({ error: "Failed to remove member" }, { status: 500 });
   }
 
