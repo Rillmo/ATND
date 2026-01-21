@@ -254,17 +254,52 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
               <p className="mt-1">-</p>
             ) : (
               <>
-                <p className="mt-1">
-                  {(showAllPreview ? previewDates : previewDates.slice(0, 5)).join(", ")}
-                  {previewDates.length > 5 && !showAllPreview ? " ..." : ""}
+                <p className="mt-1 text-slate-700 font-semibold">
+                  {previewDates.length}{" "}
+                  {locale === "ko" ? "개 일정 예정" : "occurrences scheduled"}
                 </p>
-                {previewDates.length > 5 ? (
+                <p className="text-[11px] text-slate-500">
+                  {locale === "ko" ? "첫 일정" : "First"}:{" "}
+                  {new Date(previewDates[0]).toLocaleDateString(
+                    locale === "ko" ? "ko-KR" : "en-US",
+                    { weekday: "short", month: "short", day: "numeric", year: "numeric" }
+                  )}
+                  {" · "}
+                  {locale === "ko" ? "마지막" : "Last"}:{" "}
+                  {new Date(previewDates[previewDates.length - 1]).toLocaleDateString(
+                    locale === "ko" ? "ko-KR" : "en-US",
+                    { weekday: "short", month: "short", day: "numeric", year: "numeric" }
+                  )}
+                </p>
+                <ul className="mt-2 space-y-1 text-[13px] text-slate-700">
+                  {(showAllPreview
+                    ? previewDates
+                    : previewDates.slice(0, 8)
+                  ).map((date) => (
+                    <li key={date} className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+                      <span>
+                        {new Date(date).toLocaleDateString(
+                          locale === "ko" ? "ko-KR" : "en-US",
+                          { weekday: "short", month: "short", day: "numeric", year: "numeric" }
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {previewDates.length > 8 ? (
                   <button
                     type="button"
                     onClick={() => setShowAllPreview((prev) => !prev)}
                     className="mt-2 text-[11px] font-semibold text-slate-700 underline"
                   >
-                    {showAllPreview ? "닫기" : "더보기"}
+                    {showAllPreview
+                      ? locale === "ko"
+                        ? "접기"
+                        : "Show less"
+                      : locale === "ko"
+                        ? "더보기"
+                        : "Show more"}
                   </button>
                 ) : null}
               </>
