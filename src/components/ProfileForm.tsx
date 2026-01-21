@@ -8,7 +8,8 @@ type ProfileState = {
   email: string;
 };
 
-const namePattern = "^[A-Za-z가-힣0-9]+(?:[ _-]?[A-Za-z가-힣0-9]+)*$";
+const namePattern = "^[A-Za-z가-힣0-9]+(?:[ _-][A-Za-z가-힣0-9]+)*$";
+const NAME_REGEX = /^[A-Za-z가-힣0-9]+(?:[ _-][A-Za-z가-힣0-9]+)*$/;
 
 export default function ProfileForm() {
   const { dictionary } = useI18n();
@@ -48,11 +49,23 @@ export default function ProfileForm() {
     setMessage(null);
     setSaving(true);
 
+    const trimmedName = profile.name.trim();
+    if (
+      trimmedName.length < 2 ||
+      trimmedName.length > 50 ||
+      !NAME_REGEX.test(trimmedName) ||
+      /^\d+$/.test(trimmedName)
+    ) {
+      setError(dictionary.settings.nameInvalid);
+      setSaving(false);
+      return;
+    }
+
     const response = await fetch("/api/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: profile.name.trim(),
+        name: trimmedName,
       }),
     });
 

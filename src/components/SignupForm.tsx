@@ -6,6 +6,7 @@ import { useI18n } from "@/components/LocaleProvider";
 import Link from "next/link";
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S+$/;
+const NAME_REGEX = /^[A-Za-z가-힣0-9]+(?:[ _-][A-Za-z가-힣0-9]+)*$/;
 
 export default function SignupForm() {
   const { dictionary, locale } = useI18n();
@@ -21,6 +22,18 @@ export default function SignupForm() {
     event.preventDefault();
     setError(null);
     setLoading(true);
+
+    const trimmedName = name.trim();
+    if (
+      trimmedName.length < 2 ||
+      trimmedName.length > 50 ||
+      !NAME_REGEX.test(trimmedName) ||
+      /^\d+$/.test(trimmedName)
+    ) {
+      setLoading(false);
+      setError(dictionary.auth.nameInvalid);
+      return;
+    }
 
     if (!email.includes("@")) {
       setLoading(false);
@@ -56,7 +69,7 @@ export default function SignupForm() {
     sessionStorage.setItem(
       "pendingSignup",
       JSON.stringify({
-        name,
+        name: trimmedName,
         email,
         password,
         termsAccepted,
@@ -85,7 +98,7 @@ export default function SignupForm() {
             value={name}
             onChange={(event) => setName(event.target.value)}
             className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
-            pattern="^[A-Za-z가-힣0-9]+(?:[ _-]?[A-Za-z가-힣0-9]+)*$"
+            pattern="^[A-Za-z가-힣0-9]+(?:[ _-][A-Za-z가-힣0-9]+)*$"
             required
           />
         </div>

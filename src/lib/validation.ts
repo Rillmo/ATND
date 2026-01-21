@@ -5,7 +5,10 @@ const nameSchema = z
   .trim()
   .min(2)
   .max(50)
-  .regex(/^[A-Za-z가-힣0-9]+(?:[ _-]?[A-Za-z가-힣0-9]+)*$/);
+  .regex(/^[A-Za-z가-힣0-9]+(?:[ _-][A-Za-z가-힣0-9]+)*$/)
+  .refine((value) => !/^\d+$/.test(value), {
+    message: "Name cannot be numbers only.",
+  });
 
 const passwordSchema = z
   .string()

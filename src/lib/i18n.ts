@@ -50,6 +50,8 @@ export const dictionaries = {
       signupTitle: "Sign Up",
       signupSubtitle: "Create an account to start or join an organization.",
       name: "Name",
+      nameInvalid:
+        "Name must be 2-50 characters, letters/numbers only, with optional spaces, hyphens, or underscores.",
       email: "Email",
       emailInvalid: "Enter a valid email address (e.g., name@example.com).",
       password: "Password",
@@ -270,6 +272,8 @@ export const dictionaries = {
       profileSubtitle: "Update your display name.",
       accountSection: "Account",
       nameLabel: "Name",
+      nameInvalid:
+        "Name must be 2-50 characters, letters/numbers only, with optional spaces, hyphens, or underscores.",
       emailLabel: "Email",
       saveButton: "Save changes",
       saving: "Saving...",
@@ -325,6 +329,8 @@ export const dictionaries = {
       signupTitle: "회원가입",
       signupSubtitle: "이메일 가입 후 바로 조직을 만들거나 초대 코드를 입력하세요.",
       name: "이름",
+      nameInvalid:
+        "이름은 2~50자, 영문/한글/숫자만 가능하며 공백·하이픈·언더바를 사용할 수 있어요.",
       email: "이메일",
       emailInvalid: "유효한 이메일 주소를 입력하세요. (예: name@example.com)",
       password: "비밀번호",
@@ -545,6 +551,8 @@ export const dictionaries = {
       profileSubtitle: "이름을 수정하세요.",
       accountSection: "계정",
       nameLabel: "이름",
+      nameInvalid:
+        "이름은 2~50자, 영문/한글/숫자만 가능하며 공백·하이픈·언더바를 사용할 수 있어요.",
       emailLabel: "이메일",
       saveButton: "변경 저장",
       saving: "저장 중...",
