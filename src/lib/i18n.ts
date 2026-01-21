@@ -248,7 +248,8 @@ export const dictionaries = {
         default: "Unable to create event.",
       },
       checkin: {
-        400: "Check-in window or location is not valid.",
+        "400_TIME": "Attendance window is closed.",
+        "400_GEO": "Outside the allowed attendance radius.",
         default: "Unable to check in.",
       },
       leaveOrg: {
@@ -522,7 +523,8 @@ export const dictionaries = {
         default: "일정 생성에 실패했습니다.",
       },
       checkin: {
-        400: "출석 가능 시간이 아니거나 위치가 맞지 않습니다.",
+        "400_TIME": "출석 가능 시간이 아닙니다.",
+        "400_GEO": "출석 가능 위치가 아닙니다.",
         default: "출석 체크에 실패했습니다.",
       },
       leaveOrg: {

@@ -51,7 +51,7 @@ export async function POST(
 
   if (now < start || now > end) {
     return NextResponse.json(
-      { error: "Attendance window closed" },
+      { error: "TIME_WINDOW" },
       { status: 400 }
     );
   }
@@ -65,7 +65,7 @@ export async function POST(
 
   if (distance > event.radius_meters) {
     return NextResponse.json(
-      { error: "Outside attendance radius" },
+      { error: "OUT_OF_RADIUS" },
       { status: 400 }
     );
   }

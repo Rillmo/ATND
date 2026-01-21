@@ -8,10 +8,12 @@ export default function CheckInButton({
   orgId,
   eventId,
   checkedIn,
+  canCheckIn,
 }: {
   orgId: string;
   eventId: string;
   checkedIn: boolean;
+  canCheckIn: boolean;
 }) {
   const { dictionary, locale } = useI18n();
   const [loading, setLoading] = useState(false);
@@ -47,9 +49,16 @@ export default function CheckInButton({
         );
 
         if (!response.ok) {
-          setMessage(
-            getFriendlyErrorMessage(response.status, "checkin", locale)
-          );
+          const data = (await response.json().catch(() => null)) as
+            | { error?: string }
+            | null;
+          if (data?.error === "TIME_WINDOW") {
+            setMessage(dictionary.errors.checkin["400_TIME"]);
+          } else if (data?.error === "OUT_OF_RADIUS") {
+            setMessage(dictionary.errors.checkin["400_GEO"]);
+          } else {
+            setMessage(getFriendlyErrorMessage(response.status, "checkin", locale));
+          }
         } else {
           setMessage(dictionary.event.checkinSuccess);
           setChecked(true);
@@ -67,9 +76,9 @@ export default function CheckInButton({
     <div className="space-y-2">
       <button
         onClick={handleCheckIn}
-        disabled={loading || checked}
+        disabled={loading || checked || !canCheckIn}
         className={`rounded-full px-5 py-2 text-sm font-semibold text-white transition ${
-          checked
+          checked || !canCheckIn
             ? "bg-slate-400"
             : "bg-teal-600 hover:bg-teal-700 disabled:opacity-70"
         }`}
@@ -80,6 +89,11 @@ export default function CheckInButton({
           ? dictionary.event.checkingIn
           : dictionary.event.checkIn}
       </button>
+      {(!canCheckIn && !checked && !message) ? (
+        <p className="text-xs text-slate-600">
+          {dictionary.errors.checkin["400_TIME"]}
+        </p>
+      ) : null}
       {message ? <p className="text-xs text-slate-600">{message}</p> : null}
     </div>
   );

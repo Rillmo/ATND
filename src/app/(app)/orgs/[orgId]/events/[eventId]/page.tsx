@@ -145,6 +145,7 @@ export default async function EventDetailPage({
       : now > end
       ? dictionary.status.checkinClosed
       : dictionary.status.checkinOpen;
+  const canCheckIn = now >= start && now <= end;
 
   return (
     <div className="space-y-8">
@@ -212,6 +213,7 @@ export default async function EventDetailPage({
             orgId={orgId}
             eventId={eventId}
             checkedIn={attendanceRecord?.status === "ATTENDED"}
+            canCheckIn={canCheckIn}
           />
         </div>
       </section>
