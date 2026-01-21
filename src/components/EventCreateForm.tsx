@@ -23,15 +23,16 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
   const [weekdays, setWeekdays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showAllPreview, setShowAllPreview] = useState(false);
 
   const previewDates = useMemo(() => {
-    if (!recurring || !eventDate || !startAt) return "-";
+    if (!recurring || !eventDate || !startAt) return [];
     const baseDateParts = eventDate.split("-").map(Number);
-    if (baseDateParts.length !== 3) return "-";
+    if (baseDateParts.length !== 3) return [];
     const [year, month, day] = baseDateParts;
     const baseDate = new Date(year, month - 1, day);
     const startBase = new Date(startAt);
-    if (Number.isNaN(startBase.valueOf())) return "-";
+    if (Number.isNaN(startBase.valueOf())) return [];
     const baseDay = ((baseDate.getDay() + 6) % 7) + 1;
     const monday = new Date(baseDate);
     monday.setDate(baseDate.getDate() - (baseDay - 1));
@@ -54,7 +55,7 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
       });
     }
     dates.sort();
-    return dates.length ? dates.slice(0, 5).join(", ") : "-";
+    return dates;
   }, [eventDate, recurring, startAt, weeksCount, weekdays]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -245,14 +246,32 @@ export default function EventCreateForm({ orgId }: { orgId: string }) {
                 className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm"
               />
             </div>
-            <div className="rounded-xl bg-white px-4 py-3 text-xs text-slate-600">
-              <p className="font-semibold text-slate-700">
-                {dictionary.event.repeatPreview}
-              </p>
-              <p className="mt-1">{previewDates}</p>
-            </div>
+          <div className="rounded-xl bg-white px-4 py-3 text-xs text-slate-600">
+            <p className="font-semibold text-slate-700">
+              {dictionary.event.repeatPreview}
+            </p>
+            {previewDates.length === 0 ? (
+              <p className="mt-1">-</p>
+            ) : (
+              <>
+                <p className="mt-1">
+                  {(showAllPreview ? previewDates : previewDates.slice(0, 5)).join(", ")}
+                  {previewDates.length > 5 && !showAllPreview ? " ..." : ""}
+                </p>
+                {previewDates.length > 5 ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllPreview((prev) => !prev)}
+                    className="mt-2 text-[11px] font-semibold text-slate-700 underline"
+                  >
+                    {showAllPreview ? "닫기" : "더보기"}
+                  </button>
+                ) : null}
+              </>
+            )}
           </div>
-        ) : null}
+        </div>
+      ) : null}
       </div>
 
       <LocationPicker
