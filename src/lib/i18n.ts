@@ -211,6 +211,9 @@ export const dictionaries = {
       bulkDeleteConfirm: "Delete selected events?",
       bulkDeleteError: "Failed to delete selected events.",
       bulkSelectionLabel: "Selected: {count}",
+      bulkSelectionStart: "Select",
+      bulkSelectionCancel: "Cancel",
+      bulkSelectionHint: "Select upcoming events to delete in bulk.",
     },
     status: {
       notAttended: "NOT_ATTENDED",
@@ -480,6 +483,9 @@ export const dictionaries = {
       bulkDeleteConfirm: "선택한 일정을 삭제할까요?",
       bulkDeleteError: "선택한 일정을 삭제하지 못했습니다.",
       bulkSelectionLabel: "선택됨: {count}",
+      bulkSelectionStart: "선택하기",
+      bulkSelectionCancel: "선택 취소",
+      bulkSelectionHint: "예정된 일정을 선택해서 한 번에 삭제할 수 있습니다.",
     },
     status: {
       notAttended: "NOT_ATTENDED",

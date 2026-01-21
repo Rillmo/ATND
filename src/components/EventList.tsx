@@ -27,6 +27,7 @@ export default function EventList({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
 
   const upcomingEvents = useMemo(
     () => events.filter((event) => event.status === "UPCOMING"),
@@ -101,7 +102,7 @@ export default function EventList({
           </div>
         );
 
-        if (event.status === "UPCOMING" && isManager) {
+        if (event.status === "UPCOMING" && isManager && selectionMode) {
           const checked = selected.has(event.id);
           return (
             <div
@@ -147,28 +148,54 @@ export default function EventList({
       {isManager && upcomingEvents.length ? (
         <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-700">
           <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="h-4 w-4 accent-slate-900"
-              checked={selected.size === upcomingEvents.length}
-              onChange={toggleSelectAll}
-            />
-            <span className="font-semibold">
-              {dictionary.event.bulkSelectionLabel.replace(
-                "{count}",
-                String(selected.size)
-              )}
-            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectionMode((prev) => {
+                  if (prev) {
+                    setSelected(new Set());
+                  }
+                  return !prev;
+                });
+              }}
+              className="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
+            >
+              {selectionMode ? dictionary.event.bulkSelectionCancel : dictionary.event.bulkSelectionStart}
+            </button>
+            {selectionMode ? (
+              <>
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-slate-900"
+                  checked={selected.size === upcomingEvents.length}
+                  onChange={toggleSelectAll}
+                />
+                <span className="font-semibold">
+                  {dictionary.event.bulkSelectionLabel.replace(
+                    "{count}",
+                    String(selected.size)
+                  )}
+                </span>
+              </>
+            ) : (
+              <span className="text-slate-500">
+                {dictionary.event.bulkSelectionHint}
+              </span>
+            )}
           </div>
-          <button
-            type="button"
-            disabled={selected.size === 0 || bulkLoading}
-            onClick={handleBulkDelete}
-            className="rounded-full bg-rose-600 px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
-          >
-            {dictionary.event.bulkDelete}
-          </button>
-          {bulkError ? <span className="text-rose-600">{bulkError}</span> : null}
+          {selectionMode ? (
+            <>
+              <button
+                type="button"
+                disabled={selected.size === 0 || bulkLoading}
+                onClick={handleBulkDelete}
+                className="rounded-full bg-rose-600 px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
+              >
+                {dictionary.event.bulkDelete}
+              </button>
+              {bulkError ? <span className="text-rose-600">{bulkError}</span> : null}
+            </>
+          ) : null}
         </div>
       ) : null}
 
