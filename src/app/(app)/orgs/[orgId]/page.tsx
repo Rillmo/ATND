@@ -3,9 +3,9 @@ import { redirect } from "next/navigation";
 import { getAuthSession } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import LeaveOrgButton from "@/components/LeaveOrgButton";
-import RemoveMemberButton from "@/components/RemoveMemberButton";
 import TransferManagerForm from "@/components/TransferManagerForm";
 import EventList from "@/components/EventList";
+import MemberList from "@/components/MemberList";
 import { getDictionary } from "@/lib/i18n";
 import { getLocaleFromCookie } from "@/lib/i18n-server";
 
@@ -123,7 +123,9 @@ export default async function OrgDetailPage({
                 ? dictionary.dashboard.roleManager
                 : dictionary.dashboard.roleMember}
             </span>
-            <LeaveOrgButton orgId={orgId} />
+            <div className="pt-2">
+              <LeaveOrgButton orgId={orgId} />
+            </div>
           </div>
         </div>
       </section>
@@ -152,48 +154,21 @@ export default async function OrgDetailPage({
           )}
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">
-              {dictionary.org.members}
-            </h2>
-            <span className="text-xs text-slate-500">
-              {members?.length ?? 0}
-              {dictionary.org.memberCount}
-            </span>
-          </div>
-          <div className="space-y-3 rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-200/70 sm:p-5">
-            {(members ?? []).map((member) => (
-              <div
-                key={member.users?.id}
-                className="flex items-center justify-between"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {member.users?.name ??
-                      member.users?.email ??
-                      dictionary.dashboard.roleMember}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {member.users?.email}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
-                    {member.role === "MANAGER"
-                      ? dictionary.dashboard.roleManager
-                      : dictionary.dashboard.roleMember}
-                  </span>
-                  {isManager && member.role !== "MANAGER" ? (
-                    <RemoveMemberButton
-                      orgId={orgId}
-                      userId={member.users?.id ?? ""}
-                    />
-                  ) : null}
-                </div>
-              </div>
-            ))}
-          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-slate-900">
+                {dictionary.org.members}
+              </h2>
+              <span className="text-xs text-slate-500">
+                {members?.length ?? 0}
+                {dictionary.org.memberCount}
+              </span>
+            </div>
+          <MemberList
+            orgId={orgId}
+            members={members ?? []}
+            isManager={isManager}
+          />
           {isManager ? (
             <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-200/70 sm:p-5">
               <TransferManagerForm

@@ -99,6 +99,11 @@ export async function sendSupportEmail(params: {
     to,
     replyTo: params.fromEmail,
     subject: `[ATND] ${params.subject}`,
+    headers: {
+      "X-Priority": "1",
+      Priority: "urgent",
+      Importance: "high",
+    },
     text,
     html: `<p>${metaLines.join("<br />")}</p><hr /><p>${params.message}</p>`,
   });

@@ -27,7 +27,7 @@ export default function LeaveOrgButton({ orgId }: { orgId: string }) {
   };
 
   return (
-    <div>
+    <div className="pt-1">
       <button
         className="rounded-full border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-600 hover:border-rose-300"
         onClick={handleLeave}

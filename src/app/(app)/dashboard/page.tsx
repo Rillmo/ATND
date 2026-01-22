@@ -16,6 +16,11 @@ export default async function DashboardPage() {
   const dictionary = getDictionary(locale);
 
   const supabase = getSupabaseAdmin();
+  const { data: user } = await supabase
+    .from("users")
+    .select("name")
+    .eq("id", session.user.id)
+    .single();
   const { data } = await supabase
     .from("organization_members")
     .select(
@@ -46,7 +51,7 @@ export default async function DashboardPage() {
       <section className="rounded-3xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200/70 sm:p-8">
         <h1 className="text-2xl font-semibold text-slate-900">
           {dictionary.dashboard.greeting},{" "}
-          {session.user.name ?? dictionary.dashboard.roleMember}
+          {user?.name ?? dictionary.dashboard.roleMember}
         </h1>
         <p className="mt-2 text-sm text-slate-600">
           {dictionary.dashboard.subtext}

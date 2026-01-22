@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     .select("org_id")
     .eq("org_id", org.id)
     .eq("user_id", session.user.id)
-    .single();
+    .maybeSingle();
 
   if (existingError) {
     logApiError("orgs.join.membership_check", existingError, {

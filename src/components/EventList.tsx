@@ -90,10 +90,11 @@ export default function EventList({
     label: string,
     badgeClasses: string,
     expand: boolean,
-    onToggle: () => void
+    onToggle: () => void,
+    limit: number
   ) => {
-    const visible = expand ? list : list.slice(0, 5);
-    const hasMore = list.length > 5;
+    const visible = expand ? list : list.slice(0, limit);
+    const hasMore = list.length > limit;
 
     return (
     <div className="space-y-3">
@@ -228,7 +229,8 @@ export default function EventList({
             dictionary.org.sectionOngoing,
             "text-teal-700",
             showAllOngoing,
-            () => setShowAllOngoing((prev) => !prev)
+            () => setShowAllOngoing((prev) => !prev),
+            5
           )
         : null}
       {upcomingEvents.length
@@ -237,7 +239,8 @@ export default function EventList({
             dictionary.org.sectionUpcoming,
             "text-slate-500",
             showAllUpcoming,
-            () => setShowAllUpcoming((prev) => !prev)
+            () => setShowAllUpcoming((prev) => !prev),
+            3
           )
         : null}
       {endedEvents.length
@@ -246,7 +249,8 @@ export default function EventList({
             dictionary.org.sectionEnded,
             "text-slate-500",
             showAllEnded,
-            () => setShowAllEnded((prev) => !prev)
+            () => setShowAllEnded((prev) => !prev),
+            3
           )
         : null}
     </div>
