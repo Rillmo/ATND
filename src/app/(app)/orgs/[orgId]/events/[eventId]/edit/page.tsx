@@ -58,7 +58,7 @@ export default async function EventEditPage({
     redirect(`/orgs/${orgId}`);
   }
 
-  if (new Date(event.attendance_start_at) <= new Date()) {
+  if (new Date(event.attendance_end_at) <= new Date()) {
     redirect(`/orgs/${orgId}/events/${eventId}`);
   }
 

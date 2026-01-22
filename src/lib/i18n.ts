@@ -215,6 +215,9 @@ export const dictionaries = {
       weekdaySat: "Sat",
       weekdaySun: "Sun",
       editTitle: "Edit Event",
+      editLimitedNote:
+        "Only the title and end time can be updated after attendance starts.",
+      editClosedNote: "Editing is disabled after attendance ends.",
       deleteTitle: "Delete Event",
       deleteConfirm: "Delete this event?",
       deleteNotice:
@@ -511,6 +514,8 @@ export const dictionaries = {
       weekdaySat: "토",
       weekdaySun: "일",
       editTitle: "일정 수정",
+      editLimitedNote: "출석 시작 후에는 제목과 종료 시간만 수정할 수 있습니다.",
+      editClosedNote: "출석 종료 후에는 수정할 수 없습니다.",
       deleteTitle: "일정 삭제",
       deleteConfirm: "이 일정을 삭제할까요?",
       deleteNotice: "삭제하면 복구할 수 없습니다.",

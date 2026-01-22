@@ -156,8 +156,7 @@ export default async function EventDetailPage({
         >
           ← {dictionary.org.backToOrg}
         </Link>
-        {membership.role === "MANAGER" &&
-        new Date(event.attendance_start_at) > new Date() ? (
+        {membership.role === "MANAGER" && now < end ? (
           <div className="flex items-center gap-2">
             <Link
               href={`/orgs/${orgId}/events/${eventId}/edit`}
@@ -165,7 +164,9 @@ export default async function EventDetailPage({
             >
               {dictionary.event.editTitle}
             </Link>
-            <EventDeleteButton orgId={orgId} eventId={eventId} />
+            {now < start ? (
+              <EventDeleteButton orgId={orgId} eventId={eventId} />
+            ) : null}
           </div>
         ) : null}
       </div>

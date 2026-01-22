@@ -68,7 +68,9 @@ export async function PATCH(
 
   const { data: existing } = await supabase
     .from("events")
-    .select("attendance_start_at")
+    .select(
+      "title, event_date, attendance_start_at, attendance_end_at, radius_meters, location_name, location_address, latitude, longitude"
+    )
     .eq("org_id", orgId)
     .eq("id", eventId)
     .single();
@@ -77,21 +79,24 @@ export async function PATCH(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  if (new Date(existing.attendance_start_at) <= new Date()) {
-    return NextResponse.json(
-      { error: "Cannot edit after attendance starts" },
-      { status: 400 }
-    );
-  }
-
   const body = await request.json().catch(() => null);
   const parsed = eventSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
+  const now = new Date();
+  const existingStart = new Date(existing.attendance_start_at);
+  const existingEnd = new Date(existing.attendance_end_at);
   const start = new Date(parsed.data.attendanceStartAt);
   const end = new Date(parsed.data.attendanceEndAt);
+
+  if (now >= existingEnd) {
+    return NextResponse.json(
+      { error: "Cannot edit after attendance ends" },
+      { status: 400 }
+    );
+  }
 
   if (Number.isNaN(start.valueOf()) || Number.isNaN(end.valueOf())) {
     return NextResponse.json({ error: "Invalid time" }, { status: 400 });
@@ -102,6 +107,53 @@ export async function PATCH(
       { error: "End time must be after start" },
       { status: 400 }
     );
+  }
+
+  if (now >= existingStart) {
+    if (end <= now) {
+      return NextResponse.json(
+        { error: "End time must be in the future" },
+        { status: 400 }
+      );
+    }
+
+    const unchanged =
+      parsed.data.eventDate === existing.event_date &&
+      parsed.data.attendanceStartAt === existing.attendance_start_at &&
+      parsed.data.radiusMeters === existing.radius_meters &&
+      (parsed.data.locationName ?? null) ===
+        (existing.location_name ?? null) &&
+      (parsed.data.locationAddress ?? null) ===
+        (existing.location_address ?? null) &&
+      parsed.data.latitude === existing.latitude &&
+      parsed.data.longitude === existing.longitude;
+
+    if (!unchanged) {
+      return NextResponse.json(
+        { error: "Edit limited after attendance starts" },
+        { status: 400 }
+      );
+    }
+
+    const { error } = await supabase
+      .from("events")
+      .update({
+        title: parsed.data.title,
+        attendance_end_at: parsed.data.attendanceEndAt,
+      })
+      .eq("org_id", orgId)
+      .eq("id", eventId);
+
+    if (error) {
+      logApiError("events.update", error, {
+        userId: session.user.id,
+        orgId,
+        eventId,
+      });
+      return NextResponse.json({ error: "Failed to update" }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
   }
 
   const { error } = await supabase
