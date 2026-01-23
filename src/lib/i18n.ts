@@ -148,6 +148,11 @@ export const dictionaries = {
       noEvents: "No events yet.",
       noDescription: "No description provided.",
       leaveOrg: "Leave",
+      deleteTitle: "Delete Organization",
+      deleteConfirm: "Delete this organization?",
+      deleteNotice: "All members will be removed and this cannot be undone.",
+      deleteAction: "Delete",
+      deleteCancel: "Cancel",
       transferTitle: "Transfer Manager",
       transferEmpty: "No eligible members to transfer.",
       transferButton: "Transfer",
@@ -272,6 +277,9 @@ export const dictionaries = {
       leaveOrg: {
         400: "Managers must transfer ownership before leaving.",
         default: "Unable to leave the organization.",
+      },
+      orgDelete: {
+        default: "Unable to delete the organization.",
       },
       support: {
         400: "Please check your message and try again.",
@@ -447,6 +455,11 @@ export const dictionaries = {
       noEvents: "등록된 일정이 없습니다.",
       noDescription: "조직 설명이 없습니다.",
       leaveOrg: "조직 탈퇴",
+      deleteTitle: "조직 삭제",
+      deleteConfirm: "이 조직을 삭제할까요?",
+      deleteNotice: "모든 회원이 조직에서 탈퇴되며, 되돌릴 수 없습니다.",
+      deleteAction: "삭제하기",
+      deleteCancel: "취소",
       transferTitle: "매니저 위임",
       transferEmpty: "위임할 수 있는 회원이 없습니다.",
       transferButton: "위임하기",
@@ -569,6 +582,9 @@ export const dictionaries = {
       leaveOrg: {
         400: "매니저는 위임 후 탈퇴할 수 있습니다.",
         default: "탈퇴에 실패했습니다.",
+      },
+      orgDelete: {
+        default: "조직 삭제에 실패했습니다.",
       },
       support: {
         400: "문의 내용을 다시 확인해주세요.",

@@ -77,13 +77,6 @@ export default async function EventDetailPage({
   const end = new Date(event.attendance_end_at);
   const start = new Date(event.attendance_start_at);
 
-  let myStatus = "NOT_ATTENDED";
-  if (attendanceRecord?.status === "ATTENDED") {
-    myStatus = "ATTENDED";
-  } else if (now > end) {
-    myStatus = "ABSENT";
-  }
-
   const { data: members } =
     membership.role === "MANAGER"
       ? ((await supabase
@@ -193,14 +186,6 @@ export default async function EventDetailPage({
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
               {windowLabel}
             </span>
-            <p className="mt-3 text-xs text-slate-500">
-              {dictionary.event.myStatus}:{" "}
-              {myStatus === "ATTENDED"
-                ? dictionary.status.attended
-                : myStatus === "ABSENT"
-                ? dictionary.status.absent
-                : dictionary.status.notAttended}
-            </p>
             {attendanceRecord?.checked_in_at ? (
               <p className="text-xs text-slate-500">
                 {dictionary.event.checkedAt}:{" "}

@@ -6,6 +6,7 @@ import LeaveOrgButton from "@/components/LeaveOrgButton";
 import TransferManagerForm from "@/components/TransferManagerForm";
 import EventList from "@/components/EventList";
 import MemberList from "@/components/MemberList";
+import OrgDeleteButton from "@/components/OrgDeleteButton";
 import { getDictionary } from "@/lib/i18n";
 import { getLocaleFromCookie } from "@/lib/i18n-server";
 
@@ -170,14 +171,19 @@ export default async function OrgDetailPage({
             isManager={isManager}
           />
           {isManager ? (
-            <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-200/70 sm:p-5">
-              <TransferManagerForm
-                orgId={orgId}
-                members={(members ?? []).map((member) => ({
-                  role: member.role,
-                  user: member.users,
-                }))}
-              />
+            <div className="space-y-4">
+              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-200/70 sm:p-5">
+                <TransferManagerForm
+                  orgId={orgId}
+                  members={(members ?? []).map((member) => ({
+                    role: member.role,
+                    user: member.users,
+                  }))}
+                />
+              </div>
+              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-200/70 sm:p-5">
+                <OrgDeleteButton orgId={orgId} />
+              </div>
             </div>
           ) : null}
         </div>

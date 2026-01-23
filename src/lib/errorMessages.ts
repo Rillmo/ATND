@@ -8,6 +8,7 @@ type ErrorContext =
   | "eventCreate"
   | "checkin"
   | "leaveOrg"
+  | "orgDelete"
   | "support";
 
 export function getFriendlyErrorMessage(
